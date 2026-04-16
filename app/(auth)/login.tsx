@@ -9,6 +9,7 @@ export default function LoginScreen() {
       title="Welcome back"
       subtitle="Sign in to continue your workout and supplement tracking."
       buttonLabel="Log In"
+      onPrimaryAction={() => router.replace("/home")}
       footerText="No account yet?"
       footerActionLabel="Create one"
       onFooterAction={() => router.push("/signup")}
