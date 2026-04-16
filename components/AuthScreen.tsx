@@ -1,5 +1,12 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 import { authContent } from "@/data/authContent";
 
@@ -80,10 +87,18 @@ export function AuthScreen({
       </View>
 
       <View style={styles.formCard}>
-        {showNameField ? <AuthField icon="user" placeholder="Full name" /> : null}
+        {showNameField ? (
+          <AuthField icon="user" placeholder="Full name" />
+        ) : null}
         <AuthField icon="mail" placeholder="Email address" />
         <AuthField icon="lock" placeholder="Password" secureTextEntry />
-        {showNameField ? <AuthField icon="lock" placeholder="Confirm password" secureTextEntry /> : null}
+        {showNameField ? (
+          <AuthField
+            icon="lock"
+            placeholder="Confirm password"
+            secureTextEntry
+          />
+        ) : null}
 
         <Pressable onPress={onPrimaryAction} style={styles.primaryButton}>
           <Text style={styles.primaryButtonText}>{buttonLabel}</Text>
