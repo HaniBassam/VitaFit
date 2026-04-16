@@ -2,7 +2,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
-import { BottomNav } from "@/components/home/BottomNav";
 import { HomeGreeting, HomeTopBar } from "@/components/home/HomeTopBar";
 import { TodayStatusCard } from "@/components/home/TodayStatusCard";
 import { WeeklyProgressSection } from "@/components/home/WeeklyProgressSection";
@@ -27,8 +26,6 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.bottomSpacer} />
-
-        <BottomNav />
       </ScrollView>
     </SafeAreaView>
   );
