@@ -1,0 +1,36 @@
+export const homeContent = {
+  greetingName: "Alex",
+  dateText: "Tuesday, Apr 14",
+  streakLabel: "ACTIVE STREAK: 12",
+  caloriesLabel: "480 kcal",
+  completionLabel: "75% Complete",
+  workoutStatusTitle: "Workout Status",
+  workoutStatusSubtitle: "DAILY ROUTINE",
+  supplementsStatusTitle: "Supplements Status",
+  supplementsStatusSubtitle: "VITAMINS & MINERALS",
+  workoutProgressText: "2 of 4 taken",
+  weeklyProgressTitle: "Weekly Progress",
+  weeklyHistoryLabel: "VIEW HISTORY",
+  noteTitle: "Keep it up!",
+  noteBody:
+    "You’re only 2 supplements away from a perfect day. Stay hydrated and get those electrolytes!",
+  primaryActions: [
+    { label: "Log Workout" },
+    { label: "Log Supplements" },
+  ],
+  weeklyDays: [
+    { label: "M", completed: true },
+    { label: "T", completed: true },
+    { label: "W", completed: false },
+    { label: "T", completed: false },
+    { label: "F", completed: false },
+    { label: "S", completed: false },
+    { label: "S", completed: false },
+  ],
+  bottomNavItems: [
+    { label: "Home", icon: "home", active: true },
+    { label: "Workout", icon: "activity", active: false },
+    { label: "Supplements", icon: "droplet", active: false },
+    { label: "Profile", icon: "user", active: false },
+  ],
+} as const;

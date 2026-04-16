@@ -40,6 +40,7 @@ type AuthScreenProps = {
   title: string;
   subtitle: string;
   buttonLabel: string;
+  onPrimaryAction: () => void;
   footerText: string;
   footerActionLabel: string;
   onFooterAction: () => void;
@@ -51,6 +52,7 @@ export function AuthScreen({
   title,
   subtitle,
   buttonLabel,
+  onPrimaryAction,
   footerText,
   footerActionLabel,
   onFooterAction,
@@ -83,7 +85,7 @@ export function AuthScreen({
         <AuthField icon="lock" placeholder="Password" secureTextEntry />
         {showNameField ? <AuthField icon="lock" placeholder="Confirm password" secureTextEntry /> : null}
 
-        <Pressable style={styles.primaryButton}>
+        <Pressable onPress={onPrimaryAction} style={styles.primaryButton}>
           <Text style={styles.primaryButtonText}>{buttonLabel}</Text>
         </Pressable>
 

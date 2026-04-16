@@ -9,6 +9,7 @@ export default function SignupScreen() {
       title="Create account"
       subtitle="Set up your profile so you can start tracking your routine."
       buttonLabel="Sign Up"
+      onPrimaryAction={() => router.replace("/home")}
       footerText="Already have an account?"
       footerActionLabel="Log in"
       onFooterAction={() => router.push("/login")}
