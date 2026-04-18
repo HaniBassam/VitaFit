@@ -1,14 +1,13 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { BrandLogo } from "@/components/BrandLogo";
 import { homeContent } from "@/data/homeContent";
 
 export function HomeTopBar() {
   return (
     <View style={styles.row}>
-      <View style={styles.logoBox}>
-        <Ionicons name="flash" size={18} color="#1A2226" />
-      </View>
+      <BrandLogo width={84} height={84} scale={2.35} style={styles.logoBox} />
 
       <Pressable style={styles.bellButton}>
         <Feather name="bell" size={18} color="#E5E7EB" />
@@ -43,12 +42,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logoBox: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: "#59D8A3",
-    alignItems: "center",
-    justifyContent: "center",
+    width: 64,
+    height: 74,
   },
   bellButton: {
     width: 38,

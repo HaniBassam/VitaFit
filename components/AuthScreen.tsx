@@ -1,4 +1,4 @@
-import { Feather, Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import {
   Pressable,
   ScrollView,
@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 
+import { BrandLogo } from "@/components/BrandLogo";
 import { authContent } from "@/data/authContent";
 
 type AuthFieldProps = {
@@ -74,9 +75,7 @@ export function AuthScreen({
     >
       <View style={styles.topGlow} />
       <View style={styles.card}>
-        <View style={styles.brandMark}>
-          <Ionicons name="flash" size={24} color="#0F172A" />
-        </View>
+        <BrandLogo width={174} height={140} scale={2.} />
         <Text style={styles.brandName}>{authContent.brandName}</Text>
         <Text style={styles.tagline}>{authContent.tagline}</Text>
       </View>
@@ -145,18 +144,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     alignItems: "center",
     gap: 8,
-  },
-  brandMark: {
-    width: 56,
-    height: 56,
-    borderRadius: 18,
-    backgroundColor: "#2DD47A",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#2DD47A",
-    shadowOpacity: 0.25,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 6 },
   },
   brandName: {
     color: "#F8FAFC",
