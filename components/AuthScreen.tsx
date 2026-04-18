@@ -1,5 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import {
+  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -14,16 +15,32 @@ import { authContent } from "@/data/authContent";
 type AuthFieldProps = {
   icon: keyof typeof Feather.glyphMap;
   placeholder: string;
+  value: string;
+  onChangeText: (text: string) => void;
   secureTextEntry?: boolean;
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  keyboardType?: "default" | "email-address";
 };
 
-function AuthField({ icon, placeholder, secureTextEntry }: AuthFieldProps) {
+function AuthField({
+  icon,
+  placeholder,
+  value,
+  onChangeText,
+  secureTextEntry,
+  autoCapitalize = "none",
+  keyboardType = "default",
+}: AuthFieldProps) {
   return (
     <View style={styles.field}>
       <Feather name={icon} size={18} color="#6B7280" />
       <TextInput
         placeholder={placeholder}
         placeholderTextColor="#6B7280"
+        autoCapitalize={autoCapitalize}
+        keyboardType={keyboardType}
+        value={value}
+        onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
         style={styles.input}
       />
@@ -49,11 +66,22 @@ type AuthScreenProps = {
   subtitle: string;
   buttonLabel: string;
   onPrimaryAction: () => void;
+  primaryDisabled?: boolean;
+  primaryLoading?: boolean;
+  errorMessage?: string | null;
   footerText: string;
   footerActionLabel: string;
   onFooterAction: () => void;
   showNameField?: boolean;
   bullets: readonly string[];
+  nameValue?: string;
+  emailValue: string;
+  passwordValue: string;
+  confirmPasswordValue?: string;
+  onNameChange?: (text: string) => void;
+  onEmailChange: (text: string) => void;
+  onPasswordChange: (text: string) => void;
+  onConfirmPasswordChange?: (text: string) => void;
 };
 
 export function AuthScreen({
@@ -61,11 +89,22 @@ export function AuthScreen({
   subtitle,
   buttonLabel,
   onPrimaryAction,
+  primaryDisabled = false,
+  primaryLoading = false,
+  errorMessage,
   footerText,
   footerActionLabel,
   onFooterAction,
   showNameField = false,
   bullets,
+  nameValue = "",
+  emailValue,
+  passwordValue,
+  confirmPasswordValue = "",
+  onNameChange,
+  onEmailChange,
+  onPasswordChange,
+  onConfirmPasswordChange,
 }: AuthScreenProps) {
   return (
     <ScrollView
@@ -87,21 +126,54 @@ export function AuthScreen({
 
       <View style={styles.formCard}>
         {showNameField ? (
-          <AuthField icon="user" placeholder="Full name" />
+          <AuthField
+            icon="user"
+            placeholder="Full name"
+            autoCapitalize="words"
+            value={nameValue}
+            onChangeText={onNameChange ?? (() => {})}
+          />
         ) : null}
-        <AuthField icon="mail" placeholder="Email address" />
-        <AuthField icon="lock" placeholder="Password" secureTextEntry />
+        <AuthField
+          icon="mail"
+          placeholder="Email address"
+          keyboardType="email-address"
+          value={emailValue}
+          onChangeText={onEmailChange}
+        />
+        <AuthField
+          icon="lock"
+          placeholder="Password"
+          secureTextEntry
+          value={passwordValue}
+          onChangeText={onPasswordChange}
+        />
         {showNameField ? (
           <AuthField
             icon="lock"
             placeholder="Confirm password"
             secureTextEntry
+            value={confirmPasswordValue}
+            onChangeText={onConfirmPasswordChange ?? (() => {})}
           />
         ) : null}
 
-        <Pressable onPress={onPrimaryAction} style={styles.primaryButton}>
-          <Text style={styles.primaryButtonText}>{buttonLabel}</Text>
+        <Pressable
+          disabled={primaryDisabled || primaryLoading}
+          onPress={onPrimaryAction}
+          style={[
+            styles.primaryButton,
+            (primaryDisabled || primaryLoading) && styles.primaryButtonDisabled,
+          ]}
+        >
+          {primaryLoading ? (
+            <ActivityIndicator color="#07110D" />
+          ) : (
+            <Text style={styles.primaryButtonText}>{buttonLabel}</Text>
+          )}
         </Pressable>
+
+        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
         <View style={styles.divider} />
 
@@ -205,10 +277,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 4,
   },
+  primaryButtonDisabled: {
+    opacity: 0.7,
+  },
   primaryButtonText: {
     color: "#07110D",
     fontSize: 16,
     fontWeight: "800",
+  },
+  errorText: {
+    color: "#FCA5A5",
+    fontSize: 13,
+    fontWeight: "600",
   },
   divider: {
     height: 1,
