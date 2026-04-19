@@ -4,6 +4,8 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { BrandLogo } from "@/components/BrandLogo";
 import { homeContent } from "@/data/homeContent";
 
+import { useAuth } from "@/providers/AuthProvider";
+
 export function HomeTopBar() {
   return (
     <View style={styles.row}>
@@ -18,9 +20,13 @@ export function HomeTopBar() {
 }
 
 export function HomeGreeting() {
+  const user = useAuth();
+  const email = user?.user?.email ?? "there";
+  const displayName = email.includes("@") ? email.split("@")[0] : email;
+
   return (
     <View style={styles.greetingBlock}>
-      <Text style={styles.title}>Hi, {homeContent.greetingName}</Text>
+      <Text style={styles.title}>Hi, {displayName}</Text>
       <View style={styles.metaRow}>
         <Text style={styles.dateText}>{homeContent.dateText}</Text>
         <View style={styles.streakPill}>

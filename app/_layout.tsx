@@ -1,13 +1,33 @@
-import { Stack, useSegments } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { BottomNav } from "@/components/navigation/BottomNav";
+import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 
-export default function RootLayout() {
+function AppNavigator() {
+  const router = useRouter();
   const segments = useSegments();
+  const { session, loading } = useAuth();
+
   const isAuthRoute = segments[0] === "(auth)";
+
+  useEffect(() => {
+    if (loading) {
+      return;
+    }
+
+    if (!session && !isAuthRoute) {
+      router.replace("/login");
+      return;
+    }
+
+    if (session && isAuthRoute) {
+      router.replace("/home");
+    }
+  }, [isAuthRoute, loading, router, session]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
@@ -24,6 +44,14 @@ export default function RootLayout() {
         {!isAuthRoute ? <BottomNav /> : null}
       </View>
     </SafeAreaView>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <AppNavigator />
+    </AuthProvider>
   );
 }
 
