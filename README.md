@@ -40,4 +40,19 @@ Join our community of developers creating universal apps.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 
 ## Design
+
 https://app.visily.ai/projects/23954c2a-9bae-4511-a0ac-7d3ff5549392/boards/2574201/presenter?play-mode=All+screens
+
+https://app.visily.ai/projects/23954c2a-9bae-4511-a0ac-7d3ff5549392/boards/2574201/presenter?play-mode=All+screens
+
+## List of Fitness api
+
+- https://docs.ascendapi.com/introduction
+
+- https://wger.readthedocs.io/en/latest/
+
+## Food api
+
+- https://fdc.nal.usda.gov/api-guide
+
+- https://dk.openfoodfacts.org/data
