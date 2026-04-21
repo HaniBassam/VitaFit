@@ -1,23 +1,48 @@
-import { StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
-import { profileContent } from "@/features/profile/data/profileContent";
+import {
+  profileContent,
+  type ProfileFormValues,
+} from "@/features/profile/data/profileContent";
 
-function DetailRow({
+type ProfileDetailsCardProps = {
+  values: ProfileFormValues;
+  onChangeField: <K extends keyof ProfileFormValues>(
+    field: K,
+    value: ProfileFormValues[K],
+  ) => void;
+  onToggleEditing: () => void;
+  onSave: () => void;
+  isSaving: boolean;
+  isEditing: boolean;
+  hasUnsavedChanges: boolean;
+  statusMessage?: string | null;
+};
+
+function DetailField({
   label,
   value,
-  hasBorder = true,
+  onChangeText,
+  placeholder,
+  keyboardType = "default",
+  isEditing,
 }: {
   label: string;
   value: string;
-  hasBorder?: boolean;
+  onChangeText: (text: string) => void;
+  placeholder: string;
+  keyboardType?: "default" | "email-address" | "numeric";
+  isEditing: boolean;
 }) {
   return (
-    <View
-      style={[
-        styles.detailRow,
-        hasBorder ? styles.rowBorder : styles.rowNoBorder,
-      ]}
-    >
+    <View style={styles.detailRow}>
       <View style={styles.detailLeft}>
         <View style={styles.detailIcon}>
           <Text style={styles.detailIconText}>•</Text>
@@ -25,27 +50,122 @@ function DetailRow({
         <Text style={styles.detailLabel}>{label}</Text>
       </View>
 
-      <View style={styles.detailRight}>
-        <Text style={styles.detailValue}>{value}</Text>
-        <Text style={styles.detailChevron}>⌁</Text>
-      </View>
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor="#6B7280"
+        keyboardType={keyboardType}
+        editable={isEditing}
+        style={[styles.detailInput, !isEditing && styles.detailInputLocked]}
+      />
     </View>
   );
 }
 
-export function ProfileDetailsCard() {
+export function ProfileDetailsCard({
+  values,
+  onChangeField,
+  onToggleEditing,
+  onSave,
+  isSaving,
+  isEditing,
+  hasUnsavedChanges,
+  statusMessage,
+}: ProfileDetailsCardProps) {
   return (
     <View style={styles.detailsCard}>
-      <Text style={styles.sectionTitle}>PERSONAL DETAILS</Text>
+      <View style={styles.cardHeader}>
+        <Text style={styles.sectionTitle}>
+          {profileContent.personalDetailsTitle}
+        </Text>
+        {!isEditing ? (
+          <Pressable onPress={onToggleEditing} style={styles.changeButton}>
+            <Text style={styles.changeButtonText}>Change</Text>
+          </Pressable>
+        ) : null}
+      </View>
 
-      {profileContent.details.map((detail, index) => (
-        <DetailRow
-          key={detail.label}
-          label={detail.label}
-          value={detail.value}
-          hasBorder={index !== profileContent.details.length - 1}
-        />
-      ))}
+      <Text style={styles.sectionHint}>
+        Tap Change to edit your details. They are saved to your own profile in
+        Supabase.
+      </Text>
+
+      <DetailField
+        label={profileContent.fields.name}
+        value={values.name}
+        onChangeText={(text) => onChangeField("name", text)}
+        placeholder="Your full name"
+        isEditing={isEditing}
+      />
+      <DetailField
+        label={profileContent.fields.email}
+        value={values.email}
+        onChangeText={(text) => onChangeField("email", text)}
+        placeholder="Your email"
+        keyboardType="email-address"
+        isEditing={isEditing}
+      />
+      <DetailField
+        label={profileContent.fields.age}
+        value={values.age}
+        onChangeText={(text) => onChangeField("age", text)}
+        placeholder="Age"
+        keyboardType="numeric"
+        isEditing={isEditing}
+      />
+      <DetailField
+        label={profileContent.fields.weight}
+        value={values.weight}
+        onChangeText={(text) => onChangeField("weight", text)}
+        placeholder="kg"
+        keyboardType="numeric"
+        isEditing={isEditing}
+      />
+      <DetailField
+        label={profileContent.fields.height}
+        value={values.height}
+        onChangeText={(text) => onChangeField("height", text)}
+        placeholder="cm"
+        keyboardType="numeric"
+        isEditing={isEditing}
+      />
+      <DetailField
+        label={profileContent.fields.activityLevel}
+        value={values.activityLevel}
+        onChangeText={(text) => onChangeField("activityLevel", text)}
+        placeholder="Moderate"
+        isEditing={isEditing}
+      />
+
+      <Pressable
+        style={[
+          styles.saveButton,
+          (!isEditing || isSaving || !hasUnsavedChanges) &&
+            styles.saveButtonDisabled,
+        ]}
+        onPress={onSave}
+        disabled={isSaving || !hasUnsavedChanges || !isEditing}
+      >
+        {isSaving ? (
+          <ActivityIndicator color="#07110D" />
+        ) : (
+          <Text style={styles.saveButtonText}>Save profile</Text>
+        )}
+      </Pressable>
+
+      {statusMessage ? (
+        <Text
+          style={[
+            styles.statusText,
+            statusMessage.toLowerCase().includes("saved")
+              ? styles.statusSuccess
+              : styles.statusError,
+          ]}
+        >
+          {statusMessage}
+        </Text>
+      ) : null}
     </View>
   );
 }
@@ -55,26 +175,47 @@ const styles = StyleSheet.create({
     backgroundColor: "#151A22",
     borderRadius: 22,
     padding: 16,
-    gap: 2,
+    gap: 14,
+    marginHorizontal: 18,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  changeButton: {
+    minHeight: 30,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    backgroundColor: "#10241F",
+    borderWidth: 1,
+    borderColor: "#1E5C49",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  changeButtonText: {
+    color: "#59D8A3",
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 0.3,
   },
   sectionTitle: {
     color: "#B0B8C7",
     fontSize: 13,
     fontWeight: "800",
     letterSpacing: 0.8,
-    marginBottom: 8,
+  },
+  sectionHint: {
+    color: "#8A94A6",
+    fontSize: 12,
+    lineHeight: 18,
   },
   detailRow: {
     minHeight: 58,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  rowBorder: {
-    marginBottom: 12,
-  },
-  rowNoBorder: {
-    borderBottomWidth: 0,
+    flexDirection: "column",
+    width: "100%",
+    gap: 12,
   },
   detailLeft: {
     flexDirection: "row",
@@ -99,20 +240,50 @@ const styles = StyleSheet.create({
     color: "#D8DDE6",
     fontSize: 16,
     fontWeight: "700",
+    flexShrink: 1,
   },
-  detailRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  detailValue: {
+  detailInput: {
+    flex: 1,
+    minWidth: 120,
     color: "#F8FAFC",
     fontSize: 15,
     fontWeight: "800",
+    textAlign: "right",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    backgroundColor: "#10161D",
+    borderWidth: 1,
+    borderColor: "#24303A",
   },
-  detailChevron: {
-    color: "#7F8A9F",
-    fontSize: 17,
+  detailInputLocked: {
+    opacity: 0.6,
+  },
+  saveButton: {
+    minHeight: 52,
+    borderRadius: 16,
+    backgroundColor: "#36D280",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 2,
+  },
+  saveButtonDisabled: {
+    opacity: 0.55,
+  },
+  saveButtonText: {
+    color: "#07110D",
+    fontSize: 15,
     fontWeight: "800",
+  },
+  statusText: {
+    fontSize: 12,
+    lineHeight: 18,
+    fontWeight: "600",
+  },
+  statusSuccess: {
+    color: "#36D280",
+  },
+  statusError: {
+    color: "#FCA5A5",
   },
 });

@@ -261,13 +261,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 12,
   },
   input: {
     flex: 1,
     color: "#F8FAFC",
     fontSize: 15,
-    paddingVertical: 14,
+    fontWeight: "600",
   },
   primaryButton: {
     minHeight: 54,
@@ -275,27 +275,28 @@ const styles = StyleSheet.create({
     backgroundColor: "#36D280",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 4,
+    marginTop: 2,
   },
   primaryButtonDisabled: {
     opacity: 0.7,
   },
   primaryButtonText: {
     color: "#07110D",
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "800",
   },
   errorText: {
     color: "#FCA5A5",
     fontSize: 13,
+    lineHeight: 18,
     fontWeight: "600",
   },
   divider: {
     height: 1,
-    backgroundColor: "#1A2428",
+    backgroundColor: "#1C262B",
   },
   bulletList: {
-    gap: 10,
+    gap: 8,
   },
   bulletRow: {
     flexDirection: "row",
@@ -311,21 +312,22 @@ const styles = StyleSheet.create({
   },
   bulletText: {
     flex: 1,
-    color: "#A7B1C2",
+    color: "#C7D0DB",
     fontSize: 13,
     lineHeight: 19,
+    fontWeight: "500",
   },
   footer: {
     alignItems: "center",
-    gap: 6,
+    gap: 4,
   },
   footerText: {
-    color: "#9CA3AF",
+    color: "#94A3B8",
     fontSize: 13,
   },
   footerAction: {
     color: "#36D280",
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "800",
   },
 });
