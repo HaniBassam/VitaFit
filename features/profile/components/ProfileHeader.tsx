@@ -2,7 +2,22 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { profileContent } from "@/features/profile/data/profileContent";
 
-export function ProfileHeader() {
+export function ProfileHeader({
+  displayName,
+  subtitle,
+  tagLabel,
+}: {
+  displayName: string;
+  subtitle: string;
+  tagLabel: string;
+}) {
+  const initials = displayName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+
   return (
     <View style={styles.wrapper}>
       <View style={styles.topBar}>
@@ -15,18 +30,18 @@ export function ProfileHeader() {
 
       <View style={styles.avatarWrap}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarInitials}>AJ</Text>
+          <Text style={styles.avatarInitials}>{initials || "U"}</Text>
         </View>
         <View style={styles.editBadge}>
           <Text style={styles.editBadgeIcon}>✎</Text>
         </View>
       </View>
 
-      <Text style={styles.name}>{profileContent.displayName}</Text>
-      <Text style={styles.subtitle}>{profileContent.subtitle}</Text>
+      <Text style={styles.name}>{displayName}</Text>
+      <Text style={styles.subtitle}>{subtitle}</Text>
 
       <View style={styles.tag}>
-        <Text style={styles.tagText}>{profileContent.tag}</Text>
+        <Text style={styles.tagText}>{tagLabel}</Text>
       </View>
     </View>
   );

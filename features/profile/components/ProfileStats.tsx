@@ -2,16 +2,34 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { profileContent } from "@/features/profile/data/profileContent";
 
-export function ProfileStats() {
+export function ProfileStats({
+  bmi,
+  filledFields,
+  totalFields,
+}: {
+  bmi: string;
+  filledFields: number;
+  totalFields: number;
+}) {
   return (
     <View style={styles.metricRow}>
-      {profileContent.metrics.map((metric) => (
-        <View key={metric.label} style={styles.metricCard}>
-          <Text style={styles.metricLabel}>{metric.label}</Text>
-          <Text style={styles.metricValue}>{metric.value}</Text>
-          <Text style={styles.metricHelper}>{metric.helper}</Text>
-        </View>
-      ))}
+      <View style={styles.metricCard}>
+        <Text style={styles.metricLabel}>{profileContent.stats.bmiLabel}</Text>
+        <Text style={styles.metricValue}>{bmi}</Text>
+        <Text style={styles.metricHelper}>{profileContent.stats.bmiHelper}</Text>
+      </View>
+
+      <View style={styles.metricCard}>
+        <Text style={styles.metricLabel}>
+          {profileContent.stats.completionLabel}
+        </Text>
+        <Text style={styles.metricValue}>
+          {filledFields}/{totalFields}
+        </Text>
+        <Text style={styles.metricHelper}>
+          {profileContent.stats.completionHelper}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -21,6 +39,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     marginTop: 4,
+    paddingHorizontal: 18,
   },
   metricCard: {
     flex: 1,
