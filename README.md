@@ -25,16 +25,6 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:
@@ -50,4 +40,19 @@ Join our community of developers creating universal apps.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 
 ## Design
+
 https://app.visily.ai/projects/23954c2a-9bae-4511-a0ac-7d3ff5549392/boards/2574201/presenter?play-mode=All+screens
+
+https://app.visily.ai/projects/23954c2a-9bae-4511-a0ac-7d3ff5549392/boards/2574201/presenter?play-mode=All+screens
+
+## List of Fitness api
+
+- https://docs.ascendapi.com/introduction
+
+- https://wger.readthedocs.io/en/latest/
+
+## Food api
+
+- https://fdc.nal.usda.gov/api-guide
+
+- https://dk.openfoodfacts.org/data

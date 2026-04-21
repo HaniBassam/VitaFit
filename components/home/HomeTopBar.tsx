@@ -1,14 +1,15 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { BrandLogo } from "@/components/BrandLogo";
 import { homeContent } from "@/data/homeContent";
+
+import { useAuth } from "@/providers/AuthProvider";
 
 export function HomeTopBar() {
   return (
     <View style={styles.row}>
-      <View style={styles.logoBox}>
-        <Ionicons name="flash" size={18} color="#1A2226" />
-      </View>
+      <BrandLogo width={84} height={84} scale={2.35} style={styles.logoBox} />
 
       <Pressable style={styles.bellButton}>
         <Feather name="bell" size={18} color="#E5E7EB" />
@@ -19,9 +20,13 @@ export function HomeTopBar() {
 }
 
 export function HomeGreeting() {
+  const user = useAuth();
+  const email = user?.user?.email ?? "there";
+  const displayName = email.includes("@") ? email.split("@")[0] : email;
+
   return (
     <View style={styles.greetingBlock}>
-      <Text style={styles.title}>Hi, {homeContent.greetingName}</Text>
+      <Text style={styles.title}>Hi, {displayName}</Text>
       <View style={styles.metaRow}>
         <Text style={styles.dateText}>{homeContent.dateText}</Text>
         <View style={styles.streakPill}>
@@ -43,12 +48,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logoBox: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: "#59D8A3",
-    alignItems: "center",
-    justifyContent: "center",
+    width: 64,
+    height: 74,
   },
   bellButton: {
     width: 38,
