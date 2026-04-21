@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { homeContent } from "@/data/homeContent";
+import { homeContent } from "@/features/home/data/homeContent";
 
 export function WeeklyProgressSection() {
   return (

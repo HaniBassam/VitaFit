@@ -1,7 +1,7 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { homeContent } from "@/data/homeContent";
+import { homeContent } from "@/features/home/data/homeContent";
 
 function StatusRow({
   icon,

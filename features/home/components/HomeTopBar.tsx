@@ -2,8 +2,7 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { BrandLogo } from "@/components/BrandLogo";
-import { homeContent } from "@/data/homeContent";
-
+import { homeContent } from "@/features/home/data/homeContent";
 import { useAuth } from "@/providers/AuthProvider";
 
 export function HomeTopBar() {

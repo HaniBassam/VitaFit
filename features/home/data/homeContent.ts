@@ -27,10 +27,4 @@ export const homeContent = {
     { label: "S", completed: false },
     { label: "S", completed: false },
   ],
-  bottomNavItems: [
-    { label: "Home", icon: "home", active: true },
-    { label: "Workout", icon: "activity", active: false },
-    { label: "Supplements", icon: "droplet", active: false },
-    { label: "Profile", icon: "user", active: false },
-  ],
 } as const;

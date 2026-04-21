@@ -10,7 +10,7 @@ import {
 } from "react-native";
 
 import { BrandLogo } from "@/components/BrandLogo";
-import { authContent } from "@/data/authContent";
+import { authContent } from "@/features/auth/data/authContent";
 
 type AuthFieldProps = {
   icon: keyof typeof Feather.glyphMap;
@@ -114,7 +114,7 @@ export function AuthScreen({
     >
       <View style={styles.topGlow} />
       <View style={styles.card}>
-        <BrandLogo width={174} height={140} scale={2.} />
+        <BrandLogo width={174} height={140} scale={2} />
         <Text style={styles.brandName}>{authContent.brandName}</Text>
         <Text style={styles.tagline}>{authContent.tagline}</Text>
       </View>
@@ -258,21 +258,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#10181D",
     borderWidth: 1,
     borderColor: "#202C33",
+    paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    gap: 12,
+    gap: 10,
   },
   input: {
     flex: 1,
     color: "#F8FAFC",
     fontSize: 15,
-    paddingVertical: 0,
+    paddingVertical: 14,
   },
   primaryButton: {
-    height: 54,
+    minHeight: 54,
     borderRadius: 18,
-    backgroundColor: "#2DD47A",
+    backgroundColor: "#36D280",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 4,
@@ -292,11 +292,10 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: "#1C262B",
-    marginVertical: 2,
+    backgroundColor: "#1A2428",
   },
   bulletList: {
-    gap: 12,
+    gap: 10,
   },
   bulletRow: {
     flexDirection: "row",
@@ -307,8 +306,8 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#2DD47A",
-    marginTop: 7,
+    backgroundColor: "#36D280",
+    marginTop: 6,
   },
   bulletText: {
     flex: 1,
@@ -319,15 +318,14 @@ const styles = StyleSheet.create({
   footer: {
     alignItems: "center",
     gap: 6,
-    paddingBottom: 8,
   },
   footerText: {
-    color: "#8A94A6",
+    color: "#9CA3AF",
     fontSize: 13,
   },
   footerAction: {
-    color: "#2DD47A",
-    fontSize: 13,
+    color: "#36D280",
+    fontSize: 14,
     fontWeight: "700",
   },
 });
