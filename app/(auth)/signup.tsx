@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { router } from "expo-router";
 
-import { AuthScreen } from "@/components/AuthScreen";
-import { authContent } from "@/data/authContent";
+import { AuthScreen } from "@/features/auth/components/AuthScreen";
+import { authContent } from "@/features/auth/data/authContent";
 import { useAuth } from "@/providers/AuthProvider";
 
 export default function SignupScreen() {
