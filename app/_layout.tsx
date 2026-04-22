@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { AuthProvider, useAuth } from "@/providers/AuthProvider";
+import { WorkoutProvider } from "@/features/workout/context/WorkoutContext";
 
 function AppNavigator() {
   const router = useRouter();
@@ -13,6 +14,8 @@ function AppNavigator() {
   const { session, loading } = useAuth();
 
   const isAuthRoute = segments[0] === "(auth)";
+  const isWorkoutFlowRoute =
+    segments[0] === "workout-template" || segments[0] === "exercise-library";
 
   useEffect(() => {
     if (loading) {
@@ -41,7 +44,7 @@ function AppNavigator() {
             }}
           />
         </View>
-        {!isAuthRoute ? <BottomNav /> : null}
+        {!isAuthRoute && !isWorkoutFlowRoute ? <BottomNav /> : null}
       </View>
     </SafeAreaView>
   );
@@ -50,7 +53,9 @@ function AppNavigator() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <AppNavigator />
+      <WorkoutProvider>
+        <AppNavigator />
+      </WorkoutProvider>
     </AuthProvider>
   );
 }
