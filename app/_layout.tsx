@@ -33,7 +33,7 @@ function AppNavigator() {
   }, [isAuthRoute, loading, router, session]);
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <StatusBar style="light" />
       <View style={styles.container}>
         <View style={styles.stackArea}>
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#0B1014",
     paddingHorizontal: 16,
     paddingTop: 8,
-    paddingBottom: 12,
+    paddingBottom: 0,
     gap: 12,
   },
   stackArea: {
