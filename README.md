@@ -1,58 +1,317 @@
-# Welcome to your Expo app 👋
+# VitaFit
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+VitaFit is a mobile fitness tracking app built with Expo, React Native, TypeScript, and Supabase.
 
-## Get started
+The app lets users sign up, log in, manage their profile, create workout templates, choose exercises from an exercise library, and log completed workouts. The database is also prepared for supplement tracking, which is the next feature area to finish in the app.
 
-1. Install dependencies
+## Tech Stack
 
-   ```bash
-   npm install
-   ```
+- Expo
+- React Native
+- TypeScript
+- Expo Router
+- Supabase Auth
+- Supabase Database
+- AsyncStorage for persisted auth sessions
 
-2. Start the app
+## Main Features
 
-   ```bash
-   npx expo start
-   ```
+- User signup and login with Supabase Auth
+- Protected app routes based on auth state
+- Profile page connected to the `profiles` table
+- Workout template creation
+- Exercise library loaded from Supabase
+- Workout completion logging
+- Bottom tab navigation
+- Database structure prepared for supplements
 
-In the output, you'll find options to open the app in a
+## Project Structure
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+```txt
+app/
+  _layout.tsx              Root layout, auth guard, providers, navigation shell
+  index.tsx                Redirect entry route
+  home.tsx                 Home route
+  workout.tsx              Workout route
+  workout-template.tsx     Workout template editor route
+  exercise-library.tsx     Exercise library route
+  supplements.tsx          Supplements route
+  profile.tsx              Profile route
+  (auth)/
+    login.tsx              Login route
+    signup.tsx             Signup route
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+components/
+  BrandLogo.tsx
+  navigation/
+    BottomNav.tsx          Main bottom navigation
 
-## Learn more
+features/
+  auth/                    Auth UI and text content
+  home/                    Home dashboard UI
+  profile/                 Profile screen and profile components
+  workout/                 Workout screens, context, components, and types
 
-To learn more about developing your project with Expo, look at the following resources:
+lib/
+  supabase.ts              Supabase client setup
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+providers/
+  AuthProvider.tsx         Global auth state and auth actions
 
-## Join the community
+scripts/
+  seedExercises.js         Imports exercises into Supabase
 
-Join our community of developers creating universal apps.
+utils/
+  exerciseImagesFallback.ts
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## How The App Works
 
-## Design
+The app is organized around Expo Router routes and React context providers.
 
-https://app.visily.ai/projects/23954c2a-9bae-4511-a0ac-7d3ff5549392/boards/2574201/presenter?play-mode=All+screens
+`app/_layout.tsx` wraps the whole app with:
 
-https://app.visily.ai/projects/23954c2a-9bae-4511-a0ac-7d3ff5549392/boards/2574201/presenter?play-mode=All+screens
+```tsx
+<AuthProvider>
+  <WorkoutProvider>
+    <AppNavigator />
+  </WorkoutProvider>
+</AuthProvider>
+```
 
-## List of Fitness api
+This means all screens can access the logged-in user through `AuthProvider`, and workout screens can access workout data through `WorkoutProvider`.
 
-- https://docs.ascendapi.com/introduction
+## Supabase Setup
 
-- https://wger.readthedocs.io/en/latest/
+The Supabase client is created in `lib/supabase.ts`.
 
-## Food api
+The app expects these environment variables:
 
-- https://fdc.nal.usda.gov/api-guide
+```txt
+EXPO_PUBLIC_SUPABASE_URL=your-supabase-url
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
 
-- https://dk.openfoodfacts.org/data
+The exercise seed script also requires a service role key:
+
+```txt
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+Do not commit real Supabase keys to GitHub.
+
+## Database Tables
+
+The project uses these Supabase tables:
+
+### `profiles`
+
+Stores extra user information that is not stored directly in Supabase Auth.
+
+```txt
+id
+name
+email
+age
+weight
+height
+activity_level
+created_at
+```
+
+The `profiles.id` value matches the logged-in Supabase Auth user id.
+
+### `exercise_library`
+
+Stores reusable exercises that users can choose from when creating workout templates.
+
+```txt
+id
+name
+description
+category
+muscle_group
+equipment
+image_url
+```
+
+### `workout_plans`
+
+Stores the user's workout templates.
+
+```txt
+id
+title
+category
+description
+duration_minutes
+created_at
+user_id
+```
+
+### `exercises`
+
+Stores the exercises inside a workout plan.
+
+```txt
+id
+workout_plan_id
+name
+sets
+reps
+```
+
+### `workout_logs`
+
+Stores workout history when a user completes a workout.
+
+```txt
+id
+user_id
+workout_plan_id
+completed_at
+notes
+```
+
+### `supplements`
+
+Stores available supplement definitions.
+
+```txt
+id
+name
+description
+category
+default_dosage
+unit
+created_at
+```
+
+### `profiles_supplements`
+
+Connects users to the supplements they take.
+
+```txt
+id
+user_id
+supplement_id
+dosage
+time_of_day
+is_active
+```
+
+### `supplement_logs`
+
+Stores supplement tracking history.
+
+```txt
+id
+profiles_id
+supplement_id
+taken_at
+status
+```
+
+## Data Flow
+
+### Authentication
+
+1. The user signs up or logs in from the auth screens.
+2. `AuthProvider` calls Supabase Auth.
+3. Supabase returns a session and user.
+4. The app stores the session using AsyncStorage.
+5. Protected screens redirect unauthenticated users back to login.
+
+### Profile
+
+1. The profile screen gets the current user from `AuthProvider`.
+2. It fetches the matching row from the `profiles` table.
+3. The user can edit their details.
+4. Saving the profile uses an upsert, so the row is created or updated.
+
+### Workout Templates
+
+1. The workout screen loads workout plans for the current user.
+2. `WorkoutProvider` fetches rows from `workout_plans`.
+3. It also fetches connected exercises from the `exercises` table.
+4. The app combines those rows into workout templates for the UI.
+
+### Creating A Workout
+
+1. The user creates a new template.
+2. The app opens the template editor.
+3. The user adds exercises from `exercise_library`.
+4. The draft template is stored in local React state while editing.
+5. When the user saves, the app inserts a row into `workout_plans`.
+6. Then it inserts the selected exercises into `exercises`.
+
+### Completing A Workout
+
+1. The user selects a workout template.
+2. The user marks exercises as completed.
+3. Pressing complete inserts a row into `workout_logs`.
+4. This creates a workout history record for that user.
+
+## Current Feature Status
+
+| Area | Status |
+| --- | --- |
+| Auth | Connected to Supabase |
+| Profile | Connected to Supabase |
+| Workout templates | Connected to Supabase |
+| Exercise library | Connected to Supabase |
+| Workout logs | Connected to Supabase |
+| Home dashboard | UI built with static demo content |
+| Supplements | Database planned, UI not fully connected yet |
+
+## Running The App
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the Expo development server:
+
+```bash
+npm start
+```
+
+You can also run:
+
+```bash
+npm run ios
+npm run android
+npm run web
+```
+
+## Seeding Exercises
+
+The project includes a script that imports exercise data from the WGER exercise API into Supabase.
+
+```bash
+node scripts/seedExercises.js
+```
+
+The script fetches exercises, formats the data, and upserts rows into the `exercise_library` table.
+
+## Useful Scripts
+
+```bash
+npm start
+npm run android
+npm run ios
+npm run web
+npm run lint
+```
+
+## Presentation Summary
+
+VitaFit uses Supabase as the backend. Supabase Auth handles users, while custom database tables store profiles, workout plans, exercises, workout logs, and supplement data.
+
+The React Native app connects to Supabase through a single client in `lib/supabase.ts`. Authentication state is managed globally in `AuthProvider`, and workout data is managed in `WorkoutProvider`.
+
+When a user creates a workout, the app saves the main workout template in `workout_plans` and saves its exercises in the `exercises` table. When a workout is completed, the app writes a history record into `workout_logs`.
+
+This separates reusable workout templates from completed workout history, making the app easier to expand with progress tracking later.

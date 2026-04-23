@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const navItems = [
   { label: "Home", icon: "home" as const, href: "/home" },
@@ -11,9 +12,10 @@ const navItems = [
 
 export function BottomNav() {
   const pathname = usePathname();
+  const { bottom } = useSafeAreaInsets();
 
   return (
-    <View style={styles.nav}>
+    <View style={[styles.nav, { paddingBottom: 20 + bottom }]}>
       {navItems.map((item) => {
         const isActive = pathname === item.href;
 
@@ -45,9 +47,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#1E2830",
     paddingHorizontal: 12,
-    paddingTop: 10,
-    paddingBottom: 14,
-    borderRadius: 24,
+    paddingTop: 12,
+    borderRadius: 0,
+    marginHorizontal: -16,
+    marginBottom: 0,
   },
   navItem: {
     flex: 1,
