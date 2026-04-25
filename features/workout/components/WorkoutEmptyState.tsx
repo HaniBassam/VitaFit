@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#24303A",
+    borderColor: "#7C6FB7",
   },
   iconText: {
     fontSize: 34,
@@ -61,12 +61,12 @@ const styles = StyleSheet.create({
     minHeight: 54,
     width: "100%",
     borderRadius: 18,
-    backgroundColor: "#36D280",
+    backgroundColor: "#9B8CFF",
     alignItems: "center",
     justifyContent: "center",
   },
   buttonText: {
-    color: "#07110D",
+    color: "#141022",
     fontSize: 16,
     fontWeight: "800",
   },

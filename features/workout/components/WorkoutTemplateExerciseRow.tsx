@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     padding: 14,
     gap: 14,
     borderWidth: 1,
-    borderColor: "#24303A",
+    borderColor: "#3B3550",
   },
   headerRow: {
     flexDirection: "row",
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: "#10161D",
     borderWidth: 1,
-    borderColor: "#24303A",
+    borderColor: "#4D4566",
     color: "#F8FAFC",
     fontSize: 15,
     fontWeight: "700",
