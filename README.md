@@ -60,6 +60,7 @@ providers/
 
 scripts/
   seedExercises.js         Imports exercises into Supabase
+  seedSupplements.js       Imports starter supplements into Supabase
 
 utils/
   exerciseImagesFallback.ts
@@ -252,6 +253,15 @@ status
 3. Pressing complete inserts a row into `workout_logs`.
 4. This creates a workout history record for that user.
 
+### Supplements
+
+1. The supplements screen gets the current user from `AuthProvider`.
+2. It fetches the user's active rows from `profiles_supplements`.
+3. It fetches supplement details from the `supplements` table.
+4. It fetches today's rows from `supplement_logs`.
+5. The app combines that data to show daily progress and toggle state.
+6. Toggling a supplement inserts or deletes today's `supplement_logs` row.
+
 ## Current Feature Status
 
 | Area | Status |
@@ -262,7 +272,7 @@ status
 | Exercise library | Connected to Supabase |
 | Workout logs | Connected to Supabase |
 | Home dashboard | UI built with static demo content |
-| Supplements | Database planned, UI not fully connected yet |
+| Supplements | Daily tracker connected to Supabase tables |
 
 ## Running The App
 
@@ -296,6 +306,22 @@ node scripts/seedExercises.js
 
 The script fetches exercises, formats the data, and upserts rows into the `exercise_library` table.
 
+## Seeding Supplements
+
+The project includes a script that inserts starter supplement data into Supabase.
+
+```bash
+node scripts/seedSupplements.js
+```
+
+To also create a default stack for a specific user, set the user's Supabase auth id:
+
+```bash
+SEED_SUPPLEMENTS_USER_ID=your-user-id node scripts/seedSupplements.js
+```
+
+The default user stack includes Vitamin D, Magnesium, Omega-3, and Multivitamin.
+
 ## Useful Scripts
 
 ```bash
@@ -304,6 +330,7 @@ npm run android
 npm run ios
 npm run web
 npm run lint
+node scripts/seedSupplements.js
 ```
 
 ## Presentation Summary
@@ -314,4 +341,6 @@ The React Native app connects to Supabase through a single client in `lib/supaba
 
 When a user creates a workout, the app saves the main workout template in `workout_plans` and saves its exercises in the `exercises` table. When a workout is completed, the app writes a history record into `workout_logs`.
 
-This separates reusable workout templates from completed workout history, making the app easier to expand with progress tracking later.
+The supplements screen follows the same idea. The user's daily stack comes from `profiles_supplements`, supplement details come from `supplements`, and daily completion history is saved in `supplement_logs`.
+
+This separates reusable workout templates and supplement definitions from daily history, making the app easier to expand with progress tracking later.
