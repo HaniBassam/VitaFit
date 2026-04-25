@@ -32,7 +32,7 @@ export function SupplementProgressCard({
       </View>
 
       <View style={styles.streakRow}>
-        <Feather name="calendar" size={15} color="#C6CBD5" />
+        <Feather name="calendar" size={15} color="#D8CCFF" />
         <Text style={styles.streakText}>{supplementContent.streakMessage}</Text>
       </View>
     </View>
@@ -42,41 +42,46 @@ export function SupplementProgressCard({
 const styles = StyleSheet.create({
   card: {
     gap: 12,
+    backgroundColor: "#12181D",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "#3B3550",
+    padding: 16,
   },
   eyebrow: {
-    color: "#A7B1C2",
+    color: "#94A3B8",
     fontSize: 13,
     fontWeight: "800",
-    letterSpacing: 1.6,
+    letterSpacing: 0.8,
     textTransform: "uppercase",
   },
   goalRow: {
     flexDirection: "row",
-    alignItems: "flex-end",
+    alignItems: "center",
     justifyContent: "space-between",
     gap: 14,
   },
   goalText: {
     flex: 1,
     color: "#F4F5F8",
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: "800",
   },
   percent: {
-    color: "#2FE0AF",
-    fontSize: 27,
+    color: "#D8CCFF",
+    fontSize: 20,
     fontWeight: "800",
   },
   track: {
     height: 9,
     borderRadius: 999,
-    backgroundColor: "#3B4050",
+    backgroundColor: "#1D252B",
     overflow: "hidden",
   },
   fill: {
     height: "100%",
     borderRadius: 999,
-    backgroundColor: "#2FE0AF",
+    backgroundColor: "#9B8CFF",
   },
   streakRow: {
     flexDirection: "row",
@@ -84,8 +89,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   streakText: {
-    color: "#C6CBD5",
-    fontSize: 15,
+    color: "#A8A0C8",
+    fontSize: 13,
     fontWeight: "700",
   },
 });

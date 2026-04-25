@@ -7,7 +7,7 @@ export function SupplementEmptyState() {
   return (
     <View style={styles.card}>
       <View style={styles.iconWrap}>
-        <Feather name="droplet" size={26} color="#2FE0AF" />
+        <Feather name="droplet" size={26} color="#D8CCFF" />
       </View>
       <Text style={styles.title}>{supplementContent.emptyTitle}</Text>
       <Text style={styles.subtitle}>{supplementContent.emptySubtitle}</Text>
@@ -18,10 +18,10 @@ export function SupplementEmptyState() {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 18,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: "#24303A",
-    backgroundColor: "#151A22",
+    borderColor: "#3B3550",
+    backgroundColor: "#12181D",
     padding: 22,
     alignItems: "center",
     gap: 10,
@@ -30,7 +30,9 @@ const styles = StyleSheet.create({
     width: 58,
     height: 58,
     borderRadius: 29,
-    backgroundColor: "#10241F",
+    backgroundColor: "#181426",
+    borderWidth: 1,
+    borderColor: "#7C6FB7",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -41,13 +43,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   subtitle: {
-    color: "#A7B1C2",
+    color: "#A8A0C8",
     fontSize: 14,
     lineHeight: 20,
     textAlign: "center",
   },
   hint: {
-    color: "#2FE0AF",
+    color: "#D8CCFF",
     fontSize: 13,
     fontWeight: "800",
     textAlign: "center",

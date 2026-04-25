@@ -18,7 +18,7 @@ export function SupplementRow({ supplement, onToggle }: SupplementRowProps) {
         <Feather
           name="link-2"
           size={30}
-          color={supplement.isTaken ? "#07110D" : "#C7CCD6"}
+          color={supplement.isTaken ? "#D8CCFF" : "#D8CCFF"}
         />
       </View>
 
@@ -39,29 +39,30 @@ export function SupplementRow({ supplement, onToggle }: SupplementRowProps) {
 const styles = StyleSheet.create({
   row: {
     minHeight: 104,
-    borderRadius: 18,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "#343948",
-    backgroundColor: "#171A24",
-    padding: 20,
+    borderColor: "#3B3550",
+    backgroundColor: "#151A22",
+    padding: 18,
     flexDirection: "row",
     alignItems: "center",
-    gap: 19,
+    gap: 16,
   },
   rowTaken: {
-    borderColor: "#126B59",
-    backgroundColor: "#101F22",
+    borderColor: "#7C6FB7",
+    backgroundColor: "#181426",
   },
   iconWrap: {
     width: 62,
     height: 62,
     borderRadius: 31,
-    backgroundColor: "#303548",
+    backgroundColor: "#231D33",
     alignItems: "center",
     justifyContent: "center",
   },
   iconWrapTaken: {
-    backgroundColor: "#2FE0AF",
+    borderWidth: 1,
+    borderColor: "#7C6FB7",
   },
   textWrap: {
     flex: 1,
@@ -69,25 +70,25 @@ const styles = StyleSheet.create({
   },
   name: {
     color: "#F4F5F8",
-    fontSize: 19,
+    fontSize: 18,
     fontWeight: "800",
   },
   dosage: {
-    color: "#C6CBD5",
-    fontSize: 16,
+    color: "#A8A0C8",
+    fontSize: 13,
     fontWeight: "700",
   },
   toggle: {
     width: 61,
     height: 30,
     borderRadius: 999,
-    backgroundColor: "#353A4A",
+    backgroundColor: "#2A2F3C",
     padding: 4,
     justifyContent: "center",
     alignItems: "flex-start",
   },
   toggleOn: {
-    backgroundColor: "#2FE0AF",
+    backgroundColor: "#9B8CFF",
     alignItems: "flex-end",
   },
   knob: {

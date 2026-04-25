@@ -43,13 +43,13 @@ export default function SupplementsScreen() {
         <View style={styles.header}>
           <Text style={styles.pageTitle}>{supplementContent.title}</Text>
           <Pressable style={styles.addButton}>
-            <Feather name="plus" size={28} color="#F4F5F8" />
+            <Feather name="plus" size={26} color="#D8CCFF" />
           </Pressable>
         </View>
 
         {loading ? (
           <View style={styles.loadingCard}>
-            <ActivityIndicator color="#2FE0AF" />
+            <ActivityIndicator color="#9B8CFF" />
             <Text style={styles.loadingText}>{supplementContent.loadingText}</Text>
           </View>
         ) : error ? (
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderBottomWidth: 1,
-    borderBottomColor: "#252936",
+    borderBottomColor: "#252038",
     paddingBottom: 22,
   },
   pageTitle: {
@@ -134,23 +134,25 @@ const styles = StyleSheet.create({
     width: 58,
     height: 58,
     borderRadius: 29,
-    backgroundColor: "#2B3040",
+    backgroundColor: "#181426",
+    borderWidth: 1,
+    borderColor: "#7C6FB7",
     alignItems: "center",
     justifyContent: "center",
   },
   loadingCard: {
     minHeight: 180,
-    borderRadius: 18,
-    backgroundColor: "#171A24",
+    borderRadius: 24,
+    backgroundColor: "#12181D",
     borderWidth: 1,
-    borderColor: "#343948",
+    borderColor: "#3B3550",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
     padding: 18,
   },
   loadingText: {
-    color: "#A7B1C2",
+    color: "#A8A0C8",
     fontSize: 14,
     fontWeight: "700",
   },
@@ -174,21 +176,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 12,
     paddingHorizontal: 18,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#7C6FB7",
+    backgroundColor: "#181426",
   },
   markAllButtonDisabled: {
     opacity: 0.85,
   },
   markAllText: {
-    color: "#C6CBD5",
+    color: "#D8CCFF",
     fontSize: 18,
     fontWeight: "800",
   },
   markAllTextDone: {
-    color: "#2FE0AF",
+    color: "#A7F3D0",
   },
   footerWarning: {
     marginTop: "auto",
-    color: "#C6CBD5",
+    color: "#A7B1C2",
     fontSize: 12,
     lineHeight: 17,
     textAlign: "center",

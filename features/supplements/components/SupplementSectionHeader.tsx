@@ -11,7 +11,7 @@ export function SupplementSectionHeader({ nextTime }: SupplementSectionHeaderPro
   return (
     <View style={styles.header}>
       <View style={styles.titleRow}>
-        <Feather name="activity" size={17} color="#2FE0AF" />
+        <Feather name="activity" size={17} color="#D8CCFF" />
         <Text style={styles.title}>{supplementContent.stackTitle}</Text>
       </View>
 
@@ -38,23 +38,23 @@ const styles = StyleSheet.create({
     gap: 9,
   },
   title: {
-    color: "#BFC4CE",
-    fontSize: 16,
+    color: "#94A3B8",
+    fontSize: 13,
     fontWeight: "800",
-    letterSpacing: 2,
+    letterSpacing: 0.8,
     textTransform: "uppercase",
   },
   nextPill: {
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: "#16745F",
+    borderColor: "#7C6FB7",
     paddingHorizontal: 13,
     paddingVertical: 7,
-    backgroundColor: "#10191C",
+    backgroundColor: "#181426",
   },
   nextText: {
-    color: "#2FE0AF",
-    fontSize: 13,
+    color: "#D8CCFF",
+    fontSize: 12,
     fontWeight: "800",
   },
 });
