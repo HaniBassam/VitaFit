@@ -67,16 +67,12 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#0B1014",
-    paddingHorizontal: 16,
-    paddingTop: 8,
     paddingBottom: 0,
-    gap: 12,
   },
   stackArea: {
     flex: 1,
   },
   stackContent: {
-    backgroundColor: "#0B1014",
+    backgroundColor: "transparent",
   },
 });

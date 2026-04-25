@@ -95,6 +95,8 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     overflow: "hidden",
     marginHorizontal: 18,
+    borderWidth: 1,
+    borderColor: "#3B3550",
   },
   actionRow: {
     minHeight: 56,
@@ -120,7 +122,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: "#1E242F",
+    backgroundColor: "#231D33",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -128,7 +130,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#24171A",
   },
   actionIconText: {
-    color: "#D8DDE6",
+    color: "#D8CCFF",
     fontSize: 15,
     fontWeight: "800",
   },
@@ -144,7 +146,7 @@ const styles = StyleSheet.create({
     color: "#FF6B81",
   },
   actionChevron: {
-    color: "#7F8A9F",
+    color: "#8E84B5",
     fontSize: 22,
     fontWeight: "700",
   },
