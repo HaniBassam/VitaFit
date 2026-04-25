@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 import { WorkoutProvider } from "@/features/workout/context/WorkoutContext";
+import { SupplementProvider } from "@/features/supplements/context/SupplementContext";
 
 function AppNavigator() {
   const router = useRouter();
@@ -54,7 +55,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <WorkoutProvider>
-        <AppNavigator />
+        <SupplementProvider>
+          <AppNavigator />
+        </SupplementProvider>
       </WorkoutProvider>
     </AuthProvider>
   );

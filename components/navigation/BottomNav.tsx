@@ -4,11 +4,11 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const navItems = [
-  { label: "Home", icon: "home" as const, href: "/home" },
-  { label: "Workout", icon: "activity" as const, href: "/workout" },
-  { label: "Supplements", icon: "droplet" as const, href: "/supplements" },
-  { label: "Profile", icon: "user" as const, href: "/profile" },
-];
+  { label: "Home", icon: "home" as const, href: "/home" as const },
+  { label: "Workout", icon: "activity" as const, href: "/workout" as const },
+  { label: "Supplements", icon: "droplet" as const, href: "/supplements" as const },
+  { label: "Profile", icon: "user" as const, href: "/profile" as const },
+] as const;
 
 export function BottomNav() {
   const pathname = usePathname();
