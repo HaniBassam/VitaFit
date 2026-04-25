@@ -1,7 +1,18 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { homeContent } from "@/features/home/data/homeContent";
+type TodayStatusCardProps = {
+  completionLabel: string;
+  workoutTitle: string;
+  workoutSubtitle: string;
+  workoutDone: boolean;
+  supplementsTitle: string;
+  supplementsSubtitle: string;
+  supplementsDone: boolean;
+  workoutActionLabel: string;
+  supplementsActionLabel: string;
+};
 
 function StatusRow({
   icon,
@@ -36,7 +47,19 @@ function StatusRow({
   );
 }
 
-export function TodayStatusCard() {
+export function TodayStatusCard({
+  completionLabel,
+  workoutTitle,
+  workoutSubtitle,
+  workoutDone,
+  supplementsTitle,
+  supplementsSubtitle,
+  supplementsDone,
+  workoutActionLabel,
+  supplementsActionLabel,
+}: TodayStatusCardProps) {
+  const router = useRouter();
+
   return (
     <View style={styles.card}>
       <View style={styles.headerRow}>
@@ -45,7 +68,7 @@ export function TodayStatusCard() {
           <Text style={styles.headerTitle}>TODAY STATUS</Text>
         </View>
         <View style={styles.completionPill}>
-          <Text style={styles.completionText}>{homeContent.completionLabel}</Text>
+          <Text style={styles.completionText}>{completionLabel}</Text>
         </View>
       </View>
 
@@ -53,31 +76,37 @@ export function TodayStatusCard() {
 
       <StatusRow
         icon="repeat"
-        title={homeContent.workoutStatusTitle}
-        subtitle={homeContent.workoutStatusSubtitle}
-        done
+        title={workoutTitle}
+        subtitle={workoutSubtitle}
+        done={workoutDone}
       />
 
       <View style={styles.rowDivider} />
 
       <StatusRow
         icon="link"
-        title={homeContent.supplementsStatusTitle}
-        subtitle={`${homeContent.supplementsStatusSubtitle} • ${homeContent.workoutProgressText}`}
-        done={false}
+        title={supplementsTitle}
+        subtitle={supplementsSubtitle}
+        done={supplementsDone}
       />
 
       <View style={styles.buttonRow}>
-        <Pressable style={[styles.actionButton, styles.actionPrimary]}>
+        <Pressable
+          style={[styles.actionButton, styles.actionPrimary]}
+          onPress={() => router.push("/workout")}
+        >
           <Feather name="activity" size={16} color="#141022" />
           <Text style={[styles.actionText, styles.actionPrimaryText]}>
-            {homeContent.primaryActions[0].label}
+            {workoutActionLabel}
           </Text>
         </Pressable>
 
-        <Pressable style={[styles.actionButton, styles.actionSecondary]}>
+        <Pressable
+          style={[styles.actionButton, styles.actionSecondary]}
+          onPress={() => router.push("/supplements")}
+        >
           <Feather name="link" size={16} color="#D8CCFF" />
-          <Text style={styles.actionText}>{homeContent.primaryActions[1].label}</Text>
+          <Text style={styles.actionText}>{supplementsActionLabel}</Text>
         </Pressable>
       </View>
     </View>
@@ -87,10 +116,10 @@ export function TodayStatusCard() {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#12181D",
-    borderRadius: 24,
+    borderRadius: 26,
     borderWidth: 1,
     borderColor: "#3B3550",
-    padding: 16,
+    padding: 18,
     gap: 14,
   },
   headerRow: {
@@ -152,12 +181,12 @@ const styles = StyleSheet.create({
   },
   statusTitle: {
     color: "#F8FAFC",
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "800",
   },
   statusSubtitle: {
     color: "#8A94A6",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
     textTransform: "uppercase",
   },
@@ -175,7 +204,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    minHeight: 54,
+    minHeight: 52,
     borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
@@ -193,7 +222,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     color: "#D8CCFF",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "800",
   },
   actionPrimaryText: {

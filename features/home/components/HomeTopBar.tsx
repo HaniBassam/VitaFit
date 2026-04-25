@@ -1,41 +1,17 @@
-import { Feather, Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { BrandLogo } from "@/components/BrandLogo";
-import { homeContent } from "@/features/home/data/homeContent";
-import { useAuth } from "@/providers/AuthProvider";
 
 export function HomeTopBar() {
   return (
     <View style={styles.row}>
-      <BrandLogo width={84} height={84} scale={2.35} style={styles.logoBox} />
+      <BrandLogo width={78} height={78} scale={2.15} style={styles.logoBox} />
 
       <Pressable style={styles.bellButton}>
-        <Feather name="bell" size={18} color="#E5E7EB" />
+        <Feather name="bell" size={18} color="#D8CCFF" />
         <View style={styles.bellDot} />
       </Pressable>
-    </View>
-  );
-}
-
-export function HomeGreeting() {
-  const user = useAuth();
-  const email = user?.user?.email ?? "there";
-  const displayName = email.includes("@") ? email.split("@")[0] : email;
-
-  return (
-    <View style={styles.greetingBlock}>
-      <Text style={styles.title}>Hi, {displayName}</Text>
-      <View style={styles.metaRow}>
-        <Text style={styles.dateText}>{homeContent.dateText}</Text>
-        <View style={styles.streakPill}>
-          <Text style={styles.streakText}>{homeContent.streakLabel}</Text>
-        </View>
-        <View style={styles.caloriesPill}>
-          <Ionicons name="flame-outline" size={12} color="#F59E0B" />
-          <Text style={styles.caloriesText}>{homeContent.caloriesLabel}</Text>
-        </View>
-      </View>
     </View>
   );
 }
@@ -68,56 +44,5 @@ const styles = StyleSheet.create({
     height: 5,
     borderRadius: 2.5,
     backgroundColor: "#EF4444",
-  },
-  greetingBlock: {
-    gap: 10,
-  },
-  title: {
-    color: "#F8FAFC",
-    fontSize: 34,
-    lineHeight: 38,
-    fontWeight: "800",
-    letterSpacing: -1,
-  },
-  metaRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: 8,
-  },
-  dateText: {
-    color: "#A1AAB6",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  streakPill: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: "#181426",
-    borderWidth: 1,
-    borderColor: "#7C6FB7",
-  },
-  streakText: {
-    color: "#D8CCFF",
-    fontSize: 11,
-    fontWeight: "800",
-    letterSpacing: 0.4,
-  },
-  caloriesPill: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: "#1B1B1B",
-    borderWidth: 1,
-    borderColor: "#303030",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  caloriesText: {
-    color: "#F5F5F5",
-    fontSize: 12,
-    fontWeight: "700",
   },
 });
