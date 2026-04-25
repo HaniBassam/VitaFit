@@ -29,9 +29,9 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 18,
     padding: 16,
-    backgroundColor: "#10241F",
+    backgroundColor: "#171425",
     borderWidth: 1,
-    borderColor: "#1E5C49",
+    borderColor: "#7C6FB7",
     gap: 12,
   },
   topRow: {
@@ -47,19 +47,19 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   count: {
-    color: "#A7F3D0",
+    color: "#D8CCFF",
     fontSize: 12,
     fontWeight: "800",
   },
   track: {
     height: 8,
     borderRadius: 999,
-    backgroundColor: "#173528",
+    backgroundColor: "#231D33",
     overflow: "hidden",
   },
   fill: {
     height: "100%",
     borderRadius: 999,
-    backgroundColor: "#36D280",
+    backgroundColor: "#9B8CFF",
   },
 });

@@ -3,16 +3,42 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { WorkoutTemplate } from "@/features/workout/types";
 
 type WorkoutTemplateCardProps = {
-  template: WorkoutTemplate;
+  template?: WorkoutTemplate;
   onPress?: () => void;
   selected?: boolean;
+  completedToday?: boolean;
+  variant?: "template" | "create";
 };
 
-export function WorkoutTemplateCard({ template, onPress, selected = false }: WorkoutTemplateCardProps) {
+export function WorkoutTemplateCard({
+  template,
+  onPress,
+  selected = false,
+  completedToday = false,
+  variant = "template",
+}: WorkoutTemplateCardProps) {
+  if (variant === "create") {
+    return (
+      <Pressable onPress={onPress} style={[styles.card, styles.createCard]}>
+        <View style={styles.createTextBlock}>
+          <Text style={styles.createTitle}>Create Template</Text>
+          <Text style={styles.createMeta}>Add a new workout routine</Text>
+        </View>
+      </Pressable>
+    );
+  }
+
+  if (!template) {
+    return null;
+  }
+
   return (
     <Pressable
       onPress={onPress}
-      style={[styles.card, selected && styles.cardSelected]}
+      style={[
+        styles.card,
+        selected && styles.cardSelected,
+      ]}
     >
       <View style={styles.topRow}>
         <View style={styles.titleBlock}>
@@ -22,7 +48,14 @@ export function WorkoutTemplateCard({ template, onPress, selected = false }: Wor
           </Text>
         </View>
         <View style={styles.countPill}>
-          <Text style={styles.countPillText}>{template.exercises.length} exercises</Text>
+          <Text
+            style={[
+              styles.countPillText,
+              completedToday && styles.countPillTextCompleted,
+            ]}
+          >
+            {completedToday ? "Done today" : `${template.exercises.length} exercises`}
+          </Text>
         </View>
       </View>
 
@@ -48,11 +81,37 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 12,
     borderWidth: 1,
-    borderColor: "#24303A",
+    borderColor: "#3B3550",
   },
   cardSelected: {
-    borderColor: "#36D280",
-    backgroundColor: "#10241F",
+    borderColor: "#9B8CFF",
+  },
+  createCard: {
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 14,
+    backgroundColor: "#12181D",
+  },
+  createIcon: {
+    color: "#D8CCFF",
+    fontSize: 44,
+    fontWeight: "700",
+    marginTop: -4,
+  },
+  createTextBlock: {
+    alignItems: "center",
+    gap: 4,
+  },
+  createTitle: {
+    color: "#F8FAFC",
+    fontSize: 18,
+    fontWeight: "800",
+  },
+  createMeta: {
+    color: "#A8A0C8",
+    fontSize: 12,
+    fontWeight: "600",
+    textAlign: "center",
   },
   topRow: {
     flexDirection: "row",
@@ -70,7 +129,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   meta: {
-    color: "#8A94A6",
+    color: "#A8A0C8",
     fontSize: 12,
     fontWeight: "600",
   },
@@ -78,14 +137,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: "#10241F",
+    backgroundColor: "#181426",
     borderWidth: 1,
-    borderColor: "#1E5C49",
+    borderColor: "#5D5578",
+    opacity: 0.9,
   },
   countPillText: {
-    color: "#59D8A3",
-    fontSize: 11,
+    color: "#C7BDF5",
+    fontSize: 10,
     fontWeight: "800",
+  },
+  countPillTextCompleted: {
+    color: "#A7F3D0",
   },
   exercisePreview: {
     gap: 6,

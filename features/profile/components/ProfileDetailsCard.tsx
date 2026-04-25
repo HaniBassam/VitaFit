@@ -148,7 +148,7 @@ export function ProfileDetailsCard({
         disabled={isSaving || !hasUnsavedChanges || !isEditing}
       >
         {isSaving ? (
-          <ActivityIndicator color="#07110D" />
+          <ActivityIndicator color="#141022" />
         ) : (
           <Text style={styles.saveButtonText}>Save profile</Text>
         )}
@@ -177,6 +177,8 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 14,
     marginHorizontal: 18,
+    borderWidth: 1,
+    borderColor: "#3B3550",
   },
   cardHeader: {
     flexDirection: "row",
@@ -188,14 +190,14 @@ const styles = StyleSheet.create({
     minHeight: 30,
     paddingHorizontal: 12,
     borderRadius: 999,
-    backgroundColor: "#10241F",
+    backgroundColor: "#181426",
     borderWidth: 1,
-    borderColor: "#1E5C49",
+    borderColor: "#7C6FB7",
     alignItems: "center",
     justifyContent: "center",
   },
   changeButtonText: {
-    color: "#59D8A3",
+    color: "#D8CCFF",
     fontSize: 11,
     fontWeight: "800",
     letterSpacing: 0.3,
@@ -227,12 +229,12 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: "#1E242F",
+    backgroundColor: "#231D33",
     alignItems: "center",
     justifyContent: "center",
   },
   detailIconText: {
-    color: "#31D9A6",
+    color: "#D8CCFF",
     fontSize: 18,
     fontWeight: "900",
   },
@@ -254,7 +256,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: "#10161D",
     borderWidth: 1,
-    borderColor: "#24303A",
+    borderColor: "#4D4566",
   },
   detailInputLocked: {
     opacity: 0.6,
@@ -262,7 +264,7 @@ const styles = StyleSheet.create({
   saveButton: {
     minHeight: 52,
     borderRadius: 16,
-    backgroundColor: "#36D280",
+    backgroundColor: "#9B8CFF",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 2,
@@ -271,7 +273,7 @@ const styles = StyleSheet.create({
     opacity: 0.55,
   },
   saveButtonText: {
-    color: "#07110D",
+    color: "#141022",
     fontSize: 15,
     fontWeight: "800",
   },
@@ -281,7 +283,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   statusSuccess: {
-    color: "#36D280",
+    color: "#D8CCFF",
   },
   statusError: {
     color: "#FCA5A5",

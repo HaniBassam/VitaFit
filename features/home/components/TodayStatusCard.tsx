@@ -18,7 +18,7 @@ function StatusRow({
     <View style={styles.statusRow}>
       <View style={styles.statusLeft}>
         <View style={styles.iconWrap}>
-          <Feather name={icon} size={16} color="#59D8A3" />
+          <Feather name={icon} size={16} color="#D8CCFF" />
         </View>
         <View style={styles.statusTextWrap}>
           <Text style={styles.statusTitle}>{title}</Text>
@@ -29,7 +29,7 @@ function StatusRow({
         <Ionicons
           name={done ? "checkmark-circle-outline" : "ellipse-outline"}
           size={22}
-          color={done ? "#59D8A3" : "#4B5563"}
+          color={done ? "#D8CCFF" : "#4B5563"}
         />
       </View>
     </View>
@@ -41,7 +41,7 @@ export function TodayStatusCard() {
     <View style={styles.card}>
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
-          <Feather name="activity" size={16} color="#59D8A3" />
+          <Feather name="activity" size={16} color="#D8CCFF" />
           <Text style={styles.headerTitle}>TODAY STATUS</Text>
         </View>
         <View style={styles.completionPill}>
@@ -69,14 +69,14 @@ export function TodayStatusCard() {
 
       <View style={styles.buttonRow}>
         <Pressable style={[styles.actionButton, styles.actionPrimary]}>
-          <Feather name="activity" size={16} color="#06100B" />
+          <Feather name="activity" size={16} color="#141022" />
           <Text style={[styles.actionText, styles.actionPrimaryText]}>
             {homeContent.primaryActions[0].label}
           </Text>
         </Pressable>
 
         <Pressable style={[styles.actionButton, styles.actionSecondary]}>
-          <Feather name="link" size={16} color="#59D8A3" />
+          <Feather name="link" size={16} color="#D8CCFF" />
           <Text style={styles.actionText}>{homeContent.primaryActions[1].label}</Text>
         </Pressable>
       </View>
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#12181D",
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "#1E2830",
+    borderColor: "#3B3550",
     padding: 16,
     gap: 14,
   },
@@ -113,10 +113,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: "#153128",
+    backgroundColor: "#181426",
+    borderWidth: 1,
+    borderColor: "#7C6FB7",
   },
   completionText: {
-    color: "#59D8A3",
+    color: "#D8CCFF",
     fontSize: 12,
     fontWeight: "800",
   },
@@ -140,7 +142,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 12,
-    backgroundColor: "#182228",
+    backgroundColor: "#231D33",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -182,19 +184,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   actionPrimary: {
-    backgroundColor: "#59D8A3",
+    backgroundColor: "#9B8CFF",
   },
   actionSecondary: {
     backgroundColor: "#0F171B",
     borderWidth: 1,
-    borderColor: "#2C6D5B",
+    borderColor: "#7C6FB7",
   },
   actionText: {
-    color: "#59D8A3",
+    color: "#D8CCFF",
     fontSize: 14,
     fontWeight: "800",
   },
   actionPrimaryText: {
-    color: "#07100B",
+    color: "#141022",
   },
 });

@@ -16,20 +16,21 @@ export function WorkoutSessionExerciseRow({
   return (
     <Pressable
       onPress={() => onToggle(exercise.id)}
-      style={[styles.card, completed && styles.cardCompleted]}
+      style={styles.card}
     >
       <View style={styles.icon}>
         <Text style={styles.iconText}>⟲</Text>
       </View>
 
       <View style={styles.textWrap}>
-        <Text style={[styles.name, completed && styles.completedText]}>{exercise.name}</Text>
+        <Text style={styles.name}>{exercise.name}</Text>
         <Text style={styles.meta}>
           {exercise.sets} sets · {exercise.reps} reps
+          {exercise.weight ? ` · ${exercise.weight} kg` : ""}
         </Text>
       </View>
 
-      <View style={[styles.checkbox, completed && styles.checkboxCompleted]}>
+      <View style={styles.checkbox}>
         <Text style={styles.checkboxText}>{completed ? "✓" : ""}</Text>
       </View>
     </Pressable>
@@ -45,22 +46,18 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: "#151A22",
     borderWidth: 1,
-    borderColor: "#24303A",
-  },
-  cardCompleted: {
-    borderColor: "#36D280",
-    backgroundColor: "#10241F",
+    borderColor: "#3B3550",
   },
   icon: {
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: "#173528",
+    backgroundColor: "#231D33",
     alignItems: "center",
     justifyContent: "center",
   },
   iconText: {
-    color: "#36D280",
+    color: "#D8CCFF",
     fontSize: 18,
     fontWeight: "800",
   },
@@ -73,10 +70,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "800",
   },
-  completedText: {
-    textDecorationLine: "line-through",
-    color: "#9FB3A9",
-  },
   meta: {
     color: "#A7B1C2",
     fontSize: 12,
@@ -87,16 +80,12 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#364154",
+    borderColor: "#4D4566",
     alignItems: "center",
     justifyContent: "center",
   },
-  checkboxCompleted: {
-    backgroundColor: "#36D280",
-    borderColor: "#36D280",
-  },
   checkboxText: {
-    color: "#07110D",
+    color: "#D8CCFF",
     fontSize: 14,
     fontWeight: "900",
   },

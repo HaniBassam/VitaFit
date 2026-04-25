@@ -28,7 +28,7 @@ export function BottomNav() {
             <Feather
               name={item.icon}
               size={20}
-              color={isActive ? "#59D8A3" : "#7A828E"}
+              color={isActive ? "#9B8CFF" : "#7A828E"}
             />
             <Text style={[styles.label, isActive && styles.labelActive]}>{item.label}</Text>
           </Pressable>
@@ -49,7 +49,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingTop: 12,
     borderRadius: 0,
-    marginHorizontal: -16,
     marginBottom: 0,
   },
   navItem: {
@@ -64,6 +63,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   labelActive: {
-    color: "#59D8A3",
+    color: "#D8CCFF",
   },
 });

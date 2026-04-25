@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   historyText: {
-    color: "#59D8A3",
+    color: "#D8CCFF",
     fontSize: 12,
     fontWeight: "800",
   },
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   },
   barActive: {
     height: 40,
-    backgroundColor: "#59D8A3",
+    backgroundColor: "#9B8CFF",
   },
   barInactive: {
     height: 40,
@@ -83,10 +83,10 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   noteCard: {
-    backgroundColor: "#12201B",
+    backgroundColor: "#181426",
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#1C332A",
+    borderColor: "#7C6FB7",
     padding: 16,
     flexDirection: "row",
     alignItems: "flex-start",
@@ -96,12 +96,12 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 12,
-    backgroundColor: "#173528",
+    backgroundColor: "#231D33",
     alignItems: "center",
     justifyContent: "center",
   },
   noteIconText: {
-    color: "#59D8A3",
+    color: "#D8CCFF",
     fontSize: 18,
     lineHeight: 18,
   },

@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#10161D",
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "#24303A",
+    borderColor: "#4D4566",
     paddingHorizontal: 14,
   },
   searchInput: {
@@ -279,12 +279,12 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: "#151A22",
     borderWidth: 1,
-    borderColor: "#24303A",
+    borderColor: "#4D4566",
     alignSelf: "center",
   },
   chipActive: {
-    backgroundColor: "#36D280",
-    borderColor: "#36D280",
+    backgroundColor: "#9B8CFF",
+    borderColor: "#9B8CFF",
   },
   chipText: {
     color: "#B0B8C7",
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   chipTextActive: {
-    color: "#07110D",
+    color: "#141022",
   },
   loadingCard: {
     minHeight: 120,
@@ -322,10 +322,10 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: "#151A22",
     borderWidth: 1,
-    borderColor: "#24303A",
+    borderColor: "#4D4566",
   },
   rowSelected: {
-    borderColor: "#36D280",
+    borderColor: "#9B8CFF",
   },
   image: {
     width: 52,
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   imageFallbackText: {
-    color: "#59D8A3",
+    color: "#D8CCFF",
     fontSize: 18,
     fontWeight: "800",
   },
@@ -369,23 +369,23 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#364154",
+    borderColor: "#4D4566",
     alignItems: "center",
     justifyContent: "center",
   },
   checkboxSelected: {
-    backgroundColor: "#36D280",
-    borderColor: "#36D280",
+    backgroundColor: "#9B8CFF",
+    borderColor: "#9B8CFF",
   },
   checkboxText: {
-    color: "#07110D",
+    color: "#141022",
     fontSize: 14,
     fontWeight: "900",
   },
   addButton: {
     minHeight: 54,
     borderRadius: 18,
-    backgroundColor: "#36D280",
+    backgroundColor: "#9B8CFF",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 8,
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     opacity: 0.45,
   },
   addButtonText: {
-    color: "#07110D",
+    color: "#141022",
     fontSize: 15,
     fontWeight: "800",
   },

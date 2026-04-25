@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { ProfileActions } from "@/features/profile/components/ProfileActions";
@@ -80,22 +80,17 @@ export default function ProfileScreen() {
         setStatusMessage(error.message);
       }
 
-      setFormValues({
+      const nextValues = {
         name: data?.name ?? (user.user_metadata?.name as string | undefined) ?? "",
         email: data?.email ?? user.email ?? "",
         age: data?.age != null ? String(data.age) : "",
         weight: data?.weight != null ? String(data.weight) : "",
         height: data?.height != null ? String(data.height) : "",
         activityLevel: data?.activity_level ?? "",
-      });
-      setSavedSnapshot({
-        name: data?.name ?? (user.user_metadata?.name as string | undefined) ?? "",
-        email: data?.email ?? user.email ?? "",
-        age: data?.age != null ? String(data.age) : "",
-        weight: data?.weight != null ? String(data.weight) : "",
-        height: data?.height != null ? String(data.height) : "",
-        activityLevel: data?.activity_level ?? "",
-      });
+      };
+
+      setFormValues(nextValues);
+      setSavedSnapshot(nextValues);
       setIsLoadingProfile(false);
     }
 
@@ -106,29 +101,16 @@ export default function ProfileScreen() {
     };
   }, [user]);
 
-  const bmiValue = useMemo(() => {
-    const weight = Number.parseFloat(formValues.weight);
-    const height = Number.parseFloat(formValues.height);
-
-    if (!weight || !height || Number.isNaN(weight) || Number.isNaN(height)) {
-      return "--";
-    }
-
-    const bmi = weight / Math.pow(height / 100, 2);
-    return bmi.toFixed(1);
-  }, [formValues.height, formValues.weight]);
-
-  const filledFields = useMemo(() => {
-    return Object.values(formValues).filter((value) => value.trim().length > 0)
-      .length;
-  }, [formValues]);
-
-  const hasUnsavedChanges = useMemo(
-    () =>
-      Object.entries(formValues).some(
-        ([key, value]) => value !== savedSnapshot[key as keyof ProfileFormValues],
-      ),
-    [formValues, savedSnapshot],
+  const weight = Number.parseFloat(formValues.weight);
+  const height = Number.parseFloat(formValues.height);
+  const bmiValue =
+    weight > 0 && height > 0 && !Number.isNaN(weight) && !Number.isNaN(height)
+      ? (weight / Math.pow(height / 100, 2)).toFixed(1)
+      : "--";
+  const filledFields = Object.values(formValues).filter((value) => value.trim().length > 0)
+    .length;
+  const hasUnsavedChanges = Object.entries(formValues).some(
+    ([key, value]) => value !== savedSnapshot[key as keyof ProfileFormValues],
   );
 
   function handleChangeField<K extends keyof ProfileFormValues>(
@@ -214,7 +196,7 @@ export default function ProfileScreen() {
 
         {isLoadingProfile ? (
           <View style={styles.loadingCard}>
-            <ActivityIndicator color="#36D280" />
+            <ActivityIndicator color="#9B8CFF" />
             <Text style={styles.loadingText}>Loading profile...</Text>
           </View>
         ) : (

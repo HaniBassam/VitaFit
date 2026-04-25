@@ -167,7 +167,7 @@ export function AuthScreen({
           ]}
         >
           {primaryLoading ? (
-            <ActivityIndicator color="#07110D" />
+            <ActivityIndicator color="#141022" />
           ) : (
             <Text style={styles.primaryButtonText}>{buttonLabel}</Text>
           )}
@@ -197,7 +197,6 @@ export function AuthScreen({
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: "#050B0D",
     paddingHorizontal: 24,
     paddingTop: 72,
     paddingBottom: 36,
@@ -210,7 +209,7 @@ const styles = StyleSheet.create({
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: "rgba(45, 212, 122, 0.12)",
+    backgroundColor: "rgba(155, 140, 255, 0.16)",
   },
   card: {
     alignSelf: "center",
@@ -249,7 +248,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#1C262B",
+    borderColor: "#3B3550",
     gap: 14,
   },
   field: {
@@ -257,7 +256,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: "#10181D",
     borderWidth: 1,
-    borderColor: "#202C33",
+    borderColor: "#4D4566",
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
@@ -272,7 +271,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     minHeight: 54,
     borderRadius: 18,
-    backgroundColor: "#36D280",
+    backgroundColor: "#9B8CFF",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 2,
@@ -281,7 +280,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   primaryButtonText: {
-    color: "#07110D",
+    color: "#141022",
     fontSize: 15,
     fontWeight: "800",
   },
@@ -307,7 +306,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#36D280",
+    backgroundColor: "#D8CCFF",
     marginTop: 6,
   },
   bulletText: {
@@ -326,7 +325,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   footerAction: {
-    color: "#36D280",
+    color: "#D8CCFF",
     fontSize: 14,
     fontWeight: "800",
   },

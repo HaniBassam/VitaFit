@@ -47,6 +47,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
     gap: 6,
+    borderWidth: 1,
+    borderColor: "#4D4566",
   },
   metricLabel: {
     color: "#B0B8C7",
@@ -55,7 +57,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   metricValue: {
-    color: "#31D9A6",
+    color: "#D8CCFF",
     fontSize: 22,
     fontWeight: "800",
   },
