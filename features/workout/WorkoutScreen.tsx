@@ -1,7 +1,8 @@
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -23,18 +24,23 @@ export default function WorkoutScreen() {
     loading,
     activeTemplateId,
     completedExerciseIds,
+    completedTodayPlanIds,
+    startEditingTemplate,
     startNewDraft,
     startWorkout,
     completeWorkout,
     toggleWorkoutExercise,
   } = useWorkout();
 
-  const activeTemplate = useMemo(
-    () => templates.find((template) => template.id === activeTemplateId) ?? null,
-    [activeTemplateId, templates],
-  );
+  const [showCongratsModal, setShowCongratsModal] = useState(false);
+  const [congratsTitle, setCongratsTitle] = useState("");
+  const completionLockRef = useRef<string | null>(null);
 
-  const completedSet = useMemo(() => new Set(completedExerciseIds), [completedExerciseIds]);
+  const activeTemplate = templates.find((template) => template.id === activeTemplateId) ?? null;
+  const completedSet = new Set(completedExerciseIds);
+  const isCompletedToday = activeTemplate
+    ? completedTodayPlanIds.includes(activeTemplate.id)
+    : false;
 
   useEffect(() => {
     if (!activeTemplateId && templates[0]) {
@@ -51,11 +57,32 @@ export default function WorkoutScreen() {
     startWorkout(templateId);
   }
 
-  async function handleCompleteWorkout() {
-    const isSaved = await completeWorkout();
+  function handleEditTemplate(templateId: string) {
+    startEditingTemplate(templateId);
+    router.push("/workout-template");
+  }
 
-    if (isSaved) {
-      router.replace("/workout");
+  async function handleCompleteWorkout() {
+    if (!activeTemplate || isCompletedToday) {
+      return;
+    }
+
+    if (completedSet.size !== activeTemplate.exercises.length || activeTemplate.exercises.length === 0) {
+      return;
+    }
+
+    if (completionLockRef.current === activeTemplate.id) {
+      return;
+    }
+
+    completionLockRef.current = activeTemplate.id;
+    const wasSaved = await completeWorkout();
+
+    if (wasSaved) {
+      setCongratsTitle(activeTemplate.title);
+      setShowCongratsModal(true);
+    } else {
+      completionLockRef.current = null;
     }
   }
 
@@ -88,54 +115,127 @@ export default function WorkoutScreen() {
                   key={template.id}
                   template={template}
                   selected={template.id === activeTemplate?.id}
+                  completedToday={completedTodayPlanIds.includes(template.id)}
                   onPress={() => handleTemplatePress(template.id)}
                 />
               ))}
+
+              <WorkoutTemplateCard
+                variant="create"
+                onPress={handleCreateTemplate}
+              />
             </ScrollView>
 
-            <Pressable onPress={handleCreateTemplate} style={styles.createAnother}>
-              <Text style={styles.createAnotherText}>+ Create Template</Text>
-            </Pressable>
-
             {activeTemplate ? (
-              <View style={styles.sessionBlock}>
-                <WorkoutProgressCard
-                  title={`Active: ${activeTemplate.title}`}
-                  completed={completedSet.size}
-                  total={activeTemplate.exercises.length}
-                />
+              isCompletedToday ? (
+                <View style={styles.completedBlock}>
+                  <WorkoutProgressCard
+                    title={activeTemplate.title}
+                    completed={activeTemplate.exercises.length}
+                    total={activeTemplate.exercises.length}
+                  />
 
-                <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>Exercises List</Text>
-                  <Text style={styles.sectionCount}>
-                    {completedSet.size} / {activeTemplate.exercises.length}
-                  </Text>
+                  <View style={styles.completedCard}>
+                    <Text style={styles.completedTitle}>{workoutContent.completedTodayLabel}</Text>
+                    <Text style={styles.completedSubtitle}>
+                      {workoutContent.completedTodayHelper}
+                    </Text>
+
+                    <View style={styles.completedPreview}>
+                      {activeTemplate.exercises.slice(0, 3).map((exercise) => (
+                        <Text key={exercise.id} style={styles.completedPreviewLine}>
+                          {exercise.name} • {exercise.sets} x {exercise.reps}
+                          {exercise.weight ? ` • ${exercise.weight} kg` : ""}
+                        </Text>
+                      ))}
+                    </View>
+
+                    <Pressable
+                      onPress={() => handleEditTemplate(activeTemplate.id)}
+                      style={styles.editButton}
+                    >
+                      <Text style={styles.editButtonText}>{workoutContent.editTemplate}</Text>
+                    </Pressable>
+                  </View>
                 </View>
+              ) : (
+                <View style={styles.sessionBlock}>
+                  <WorkoutProgressCard
+                    title={`Active: ${activeTemplate.title}`}
+                    completed={completedSet.size}
+                    total={activeTemplate.exercises.length}
+                  />
 
-                <View style={styles.sessionList}>
-                  {activeTemplate.exercises.map((exercise) => (
-                    <WorkoutSessionExerciseRow
-                      key={exercise.id}
-                      exercise={exercise}
-                      completed={completedSet.has(exercise.id)}
-                      onToggle={toggleWorkoutExercise}
-                    />
-                  ))}
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Exercises List</Text>
+                    <Text style={styles.sectionCount}>
+                      {completedSet.size} / {activeTemplate.exercises.length}
+                    </Text>
+                  </View>
+
+                  <View style={styles.sessionList}>
+                    {activeTemplate.exercises.map((exercise) => (
+                      <WorkoutSessionExerciseRow
+                        key={exercise.id}
+                        exercise={exercise}
+                        completed={completedSet.has(exercise.id)}
+                        onToggle={toggleWorkoutExercise}
+                      />
+                    ))}
+                  </View>
+
+                  <Pressable
+                    onPress={() => handleEditTemplate(activeTemplate.id)}
+                    style={styles.secondaryButton}
+                  >
+                    <Text style={styles.secondaryButtonText}>
+                      {workoutContent.editTemplate}
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={handleCompleteWorkout}
+                    disabled={
+                      completedSet.size !== activeTemplate.exercises.length ||
+                      activeTemplate.exercises.length === 0
+                    }
+                    style={[
+                      styles.completeButton,
+                      (completedSet.size !== activeTemplate.exercises.length ||
+                        activeTemplate.exercises.length === 0) &&
+                        styles.completeButtonDisabled,
+                    ]}
+                  >
+                    <Text style={styles.completeButtonText}>
+                      {workoutContent.completeWorkout}
+                    </Text>
+                  </Pressable>
                 </View>
-
-                <Pressable
-                  onPress={handleCompleteWorkout}
-                  style={styles.completeButton}
-                >
-                  <Text style={styles.completeButtonText}>
-                    {workoutContent.completeWorkout}
-                  </Text>
-                </Pressable>
-              </View>
+              )
             ) : null}
           </>
         )}
       </ScrollView>
+
+      <Modal transparent visible={showCongratsModal} animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>{workoutContent.congratsTitle}</Text>
+            <Text style={styles.modalBody}>{congratsTitle}</Text>
+            <Text style={styles.modalCopy}>{workoutContent.congratsMessage}</Text>
+
+            <Pressable
+              onPress={() => {
+                setShowCongratsModal(false);
+                completionLockRef.current = null;
+              }}
+              style={styles.modalButton}
+            >
+              <Text style={styles.modalButtonText}>Great</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -148,39 +248,21 @@ const styles = StyleSheet.create({
   content: {
     flexGrow: 1,
     backgroundColor: "#0B1014",
-    paddingHorizontal: 16,
-    paddingTop: 8,
     paddingBottom: 18,
     gap: 18,
   },
   templateRow: {
     alignItems: "flex-start",
     gap: 12,
-    paddingRight: 4,
+    paddingRight: 16,
   },
   topBar: {
     paddingVertical: 6,
+    paddingHorizontal: 16,
   },
   pageTitle: {
     color: "#F8FAFC",
     fontSize: 28,
-    fontWeight: "800",
-  },
-  list: {
-    gap: 14,
-  },
-  createAnother: {
-    minHeight: 54,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "#24303A",
-    backgroundColor: "#12181D",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  createAnotherText: {
-    color: "#59D8A3",
-    fontSize: 15,
     fontWeight: "800",
   },
   loadingCard: {
@@ -196,6 +278,52 @@ const styles = StyleSheet.create({
   },
   sessionBlock: {
     gap: 14,
+    minHeight: 392,
+    paddingHorizontal: 16,
+  },
+  completedBlock: {
+    gap: 14,
+    minHeight: 392,
+    paddingHorizontal: 16,
+  },
+  completedCard: {
+    borderRadius: 18,
+    padding: 16,
+    backgroundColor: "#171425",
+    borderWidth: 1,
+    borderColor: "#7C6FB7",
+    gap: 12,
+  },
+  completedTitle: {
+    color: "#F8FAFC",
+    fontSize: 18,
+    fontWeight: "800",
+  },
+  completedSubtitle: {
+    color: "#A7B1C2",
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  completedPreview: {
+    gap: 6,
+  },
+  completedPreviewLine: {
+    color: "#C7D0DB",
+    fontSize: 13,
+  },
+  editButton: {
+    minHeight: 48,
+    borderRadius: 16,
+    backgroundColor: "#151A22",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#4D4566",
+  },
+  editButtonText: {
+    color: "#D8CCFF",
+    fontSize: 14,
+    fontWeight: "800",
   },
   sectionHeader: {
     flexDirection: "row",
@@ -209,23 +337,85 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   sectionCount: {
-    color: "#59D8A3",
+    color: "#D8CCFF",
     fontSize: 13,
     fontWeight: "800",
   },
   sessionList: {
     gap: 12,
   },
+  secondaryButton: {
+    minHeight: 48,
+    borderRadius: 16,
+    backgroundColor: "#151A22",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#4D4566",
+  },
+  secondaryButtonText: {
+    color: "#D8CCFF",
+    fontSize: 14,
+    fontWeight: "800",
+  },
   completeButton: {
     minHeight: 54,
     borderRadius: 18,
-    backgroundColor: "#36D280",
+    backgroundColor: "#9B8CFF",
     alignItems: "center",
     justifyContent: "center",
   },
+  completeButtonDisabled: {
+    opacity: 0.45,
+  },
   completeButtonText: {
-    color: "#07110D",
+    color: "#141022",
     fontSize: 15,
     fontWeight: "800",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(3, 7, 10, 0.72)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 340,
+    borderRadius: 24,
+    backgroundColor: "#0F1715",
+    borderWidth: 1,
+    borderColor: "#7C6FB7",
+    padding: 20,
+    gap: 10,
+  },
+  modalTitle: {
+    color: "#D8CCFF",
+    fontSize: 24,
+    fontWeight: "900",
+  },
+  modalBody: {
+    color: "#F8FAFC",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  modalCopy: {
+    color: "#A7B1C2",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  modalButton: {
+    marginTop: 6,
+    minHeight: 48,
+    borderRadius: 16,
+    backgroundColor: "#9B8CFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalButtonText: {
+    color: "#141022",
+    fontSize: 15,
+    fontWeight: "900",
   },
 });

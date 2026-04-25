@@ -1,7 +1,16 @@
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useMemo } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 import { WorkoutTemplateExerciseRow } from "@/features/workout/components/WorkoutTemplateExerciseRow";
 import { workoutContent } from "@/features/workout/data/workoutContent";
@@ -11,21 +20,17 @@ export default function TemplateEditorScreen() {
   const router = useRouter();
   const {
     draft,
+    editingTemplateId,
     updateDraftField,
     updateDraftExercise,
     removeDraftExercise,
+    deleteDraft,
     saveDraft,
     cancelDraft,
   } = useWorkout();
 
   const exerciseCount = draft?.exercises.length ?? 0;
-  const canSave = useMemo(() => {
-    if (!draft) {
-      return false;
-    }
-
-    return draft.title.trim().length > 0 && draft.exercises.length > 0;
-  }, [draft]);
+  const canSave = !!draft && draft.title.trim().length > 0 && draft.exercises.length > 0;
 
   if (!draft) {
     return (
@@ -50,6 +55,25 @@ export default function TemplateEditorScreen() {
     }
   }
 
+  function handleDelete() {
+    Alert.alert(
+      "Delete template?",
+      "This will permanently remove the template and all of its exercises.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            if (await deleteDraft()) {
+              router.replace("/workout");
+            }
+          },
+        },
+      ],
+    );
+  }
+
   function handleClose() {
     cancelDraft();
     router.replace("/workout");
@@ -58,103 +82,126 @@ export default function TemplateEditorScreen() {
   return (
     <View style={styles.safeArea}>
       <StatusBar style="light" />
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={styles.headerRow}>
-          <Pressable onPress={handleClose} style={styles.headerAction}>
-            <Text style={styles.headerActionText}>×</Text>
-          </Pressable>
-          <Text style={styles.pageTitle}>{workoutContent.newTemplateTitle}</Text>
-          <Pressable
-            onPress={handleSave}
-            disabled={!canSave}
-            style={[styles.headerSave, !canSave && styles.headerSaveDisabled]}
-          >
-            <Text style={styles.headerSaveText}>Save</Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionLabel}>{workoutContent.templateNameLabel}</Text>
-          <TextInput
-            value={draft.title}
-            onChangeText={(text) => updateDraftField("title", text)}
-            placeholder={workoutContent.templateNamePlaceholder}
-            placeholderTextColor="#6B7280"
-            style={styles.nameInput}
-          />
-
-          <View style={styles.metaRow}>
-            <MetaPill label="Duration" value={`${draft.durationMinutes} min`} />
-            <MetaPill label="Focus" value={draft.category} />
-          </View>
-        </View>
-
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{workoutContent.exercisesTitle}</Text>
-          <View style={styles.countPill}>
-            <Text style={styles.countText}>{exerciseCount} Total</Text>
-          </View>
-        </View>
-
-        <View style={styles.exerciseList}>
-          {exerciseCount === 0 ? (
-            <View style={styles.emptyExercises}>
-              <Text style={styles.emptyExercisesText}>
-                Add exercises from the library to build this template.
-              </Text>
-            </View>
-          ) : null}
-
-          {draft.exercises.map((exercise) => (
-            <WorkoutTemplateExerciseRow
-              key={exercise.id}
-              exercise={exercise}
-              isEditing
-              onChangeExercise={updateDraftExercise}
-              onRemove={removeDraftExercise}
-            />
-          ))}
-        </View>
-
-        <Pressable
-          onPress={() => router.push("/exercise-library")}
-          style={styles.addExercisesButton}
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          automaticallyAdjustKeyboardInsets
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.addExercisesButtonText}>
-            + {workoutContent.addMoreExercises}
-          </Text>
-        </Pressable>
-
-        <View style={styles.tipCard}>
-          <Text style={styles.tipIcon}>⚡</Text>
-          <View style={styles.tipTextWrap}>
-            <Text style={styles.tipTitle}>Pro Tip</Text>
-            <Text style={styles.tipBody}>
-              Add rest periods between exercises to get more accurate workout duration tracking.
+          <View style={styles.headerRow}>
+            <Pressable onPress={handleClose} style={styles.headerAction}>
+              <Text style={styles.headerActionText}>×</Text>
+            </Pressable>
+            <Text style={styles.pageTitle}>
+              {editingTemplateId ? workoutContent.editTemplateTitle : workoutContent.newTemplateTitle}
             </Text>
+            <Pressable
+              onPress={handleSave}
+              disabled={!canSave}
+              style={[styles.headerSave, !canSave && styles.headerSaveDisabled]}
+            >
+              <Text style={styles.headerSaveText}>
+                {editingTemplateId ? workoutContent.updateTemplate : workoutContent.saveTemplate}
+              </Text>
+            </Pressable>
           </View>
-        </View>
 
-        <Pressable
-          onPress={handleSave}
-          disabled={!canSave}
-          style={[styles.primaryButton, !canSave && styles.primaryButtonDisabled]}
-        >
-          <Text style={styles.primaryButtonText}>{workoutContent.saveTemplate}</Text>
-        </Pressable>
-      </ScrollView>
-    </View>
-  );
-}
+          <View style={styles.sectionCard}>
+            <Text style={styles.sectionLabel}>{workoutContent.templateNameLabel}</Text>
+            <TextInput
+              value={draft.title}
+              onChangeText={(text) => updateDraftField("title", text)}
+              placeholder={workoutContent.templateNamePlaceholder}
+              placeholderTextColor="#6B7280"
+              style={styles.nameInput}
+            />
 
-function MetaPill({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.metaPill}>
-      <Text style={styles.metaLabel}>{label}</Text>
-      <Text style={styles.metaValue}>{value}</Text>
+            <View style={styles.metaRow}>
+              <View style={styles.metaPill}>
+                <Text style={styles.metaLabel}>{workoutContent.templateDurationLabel}</Text>
+                <TextInput
+                  value={draft.durationMinutes}
+                  onChangeText={(text) => updateDraftField("durationMinutes", text)}
+                  placeholder={workoutContent.templateDurationPlaceholder}
+                  placeholderTextColor="#6B7280"
+                  keyboardType="numeric"
+                  style={styles.metaInput}
+                />
+              </View>
+              <View style={styles.metaPill}>
+                <Text style={styles.metaLabel}>{workoutContent.templateCategoryLabel}</Text>
+                <TextInput
+                  value={draft.category}
+                  onChangeText={(text) => updateDraftField("category", text)}
+                  placeholder={workoutContent.templateCategoryPlaceholder}
+                  placeholderTextColor="#6B7280"
+                  style={styles.metaInput}
+                />
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{workoutContent.exercisesTitle}</Text>
+            <View style={styles.countPill}>
+              <Text style={styles.countText}>{exerciseCount} Total</Text>
+            </View>
+          </View>
+
+          <View style={styles.exerciseList}>
+            {exerciseCount === 0 ? (
+              <View style={styles.emptyExercises}>
+                <Text style={styles.emptyExercisesText}>
+                  Add exercises from the library to build this template.
+                </Text>
+              </View>
+            ) : null}
+
+            {draft.exercises.map((exercise) => (
+              <WorkoutTemplateExerciseRow
+                key={exercise.id}
+                exercise={exercise}
+                isEditing
+                onChangeExercise={updateDraftExercise}
+                onRemove={removeDraftExercise}
+              />
+            ))}
+          </View>
+
+          <Pressable
+            onPress={() => router.push("/exercise-library")}
+            style={styles.addExercisesButton}
+          >
+            <Text style={styles.addExercisesButtonText}>
+              + {workoutContent.addMoreExercises}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={editingTemplateId ? handleDelete : handleSave}
+            disabled={editingTemplateId ? false : !canSave}
+            style={[
+              styles.primaryButton,
+              editingTemplateId ? styles.destructiveButton : null,
+              !editingTemplateId && !canSave && styles.primaryButtonDisabled,
+            ]}
+          >
+            <Text
+              style={[
+                styles.primaryButtonText,
+                editingTemplateId && styles.destructiveButtonText,
+              ]}
+            >
+              {editingTemplateId ? "Delete Template" : workoutContent.saveTemplate}
+            </Text>
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -164,12 +211,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#0B1014",
   },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
   content: {
     flexGrow: 1,
     backgroundColor: "#0B1014",
     paddingHorizontal: 16,
     paddingTop: 8,
-    paddingBottom: 18,
+    paddingBottom: 36,
     gap: 18,
   },
   headerRow: {
@@ -200,15 +250,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: "#10241F",
+    backgroundColor: "#181426",
     borderWidth: 1,
-    borderColor: "#1E5C49",
+    borderColor: "#7C6FB7",
   },
   headerSaveDisabled: {
     opacity: 0.5,
   },
   headerSaveText: {
-    color: "#59D8A3",
+    color: "#D8CCFF",
     fontSize: 13,
     fontWeight: "800",
   },
@@ -218,7 +268,7 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 14,
     borderWidth: 1,
-    borderColor: "#24303A",
+    borderColor: "#3B3550",
   },
   sectionLabel: {
     color: "#B0B8C7",
@@ -243,7 +293,7 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: "#10161D",
     borderWidth: 1,
-    borderColor: "#24303A",
+    borderColor: "#4D4566",
     gap: 4,
   },
   metaLabel: {
@@ -252,10 +302,11 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     textTransform: "uppercase",
   },
-  metaValue: {
+  metaInput: {
     color: "#F8FAFC",
     fontSize: 14,
     fontWeight: "700",
+    paddingVertical: 0,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -271,10 +322,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: "#364154",
+    backgroundColor: "#181426",
+    borderWidth: 1,
+    borderColor: "#7C6FB7",
   },
   countText: {
-    color: "#F8FAFC",
+    color: "#D8CCFF",
     fontSize: 12,
     fontWeight: "800",
   },
@@ -286,7 +339,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: "#10161D",
     borderWidth: 1,
-    borderColor: "#24303A",
+    borderColor: "#4D4566",
   },
   emptyExercisesText: {
     color: "#A7B1C2",
@@ -299,7 +352,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#7C6FB7",
+    borderColor: "#9B8CFF",
     backgroundColor: "#151A22",
   },
   addExercisesButtonText: {
@@ -307,52 +360,26 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "800",
   },
-  tipCard: {
-    backgroundColor: "#151A22",
-    borderRadius: 18,
-    padding: 16,
-    flexDirection: "row",
-    gap: 12,
-    borderWidth: 1,
-    borderColor: "#24303A",
-  },
-  tipIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: "#173528",
-    color: "#59D8A3",
-    textAlign: "center",
-    textAlignVertical: "center",
-    fontSize: 18,
-    overflow: "hidden",
-  },
-  tipTextWrap: {
-    flex: 1,
-    gap: 4,
-  },
-  tipTitle: {
-    color: "#F8FAFC",
-    fontSize: 16,
-    fontWeight: "800",
-  },
-  tipBody: {
-    color: "#A7B1C2",
-    fontSize: 13,
-    lineHeight: 19,
-  },
   primaryButton: {
     minHeight: 54,
     borderRadius: 18,
-    backgroundColor: "#36D280",
+    backgroundColor: "#9B8CFF",
     alignItems: "center",
     justifyContent: "center",
   },
   primaryButtonDisabled: {
     opacity: 0.55,
   },
+  destructiveButton: {
+    backgroundColor: "#24171A",
+    borderWidth: 1,
+    borderColor: "#4C2129",
+  },
+  destructiveButtonText: {
+    color: "#FF6B81",
+  },
   primaryButtonText: {
-    color: "#07110D",
+    color: "#141022",
     fontSize: 16,
     fontWeight: "800",
   },

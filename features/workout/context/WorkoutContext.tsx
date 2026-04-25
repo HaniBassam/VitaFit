@@ -22,14 +22,18 @@ type WorkoutContextValue = {
   draft: WorkoutDraft | null;
   activeTemplateId: string | null;
   completedExerciseIds: string[];
+  completedTodayPlanIds: string[];
+  editingTemplateId: string | null;
   loading: boolean;
   startNewDraft: () => void;
+  startEditingTemplate: (templateId: string) => void;
   cancelDraft: () => void;
   updateDraftField: (field: "title" | "category" | "durationMinutes", value: string) => void;
   addExercisesToDraft: (items: ExerciseLibraryRow[]) => void;
   updateDraftExercise: (id: string, updates: Partial<TemplateExercise>) => void;
   removeDraftExercise: (id: string) => void;
   saveDraft: () => Promise<boolean>;
+  deleteDraft: () => Promise<boolean>;
   startWorkout: (templateId: string) => void;
   completeWorkout: () => Promise<boolean>;
   toggleWorkoutExercise: (exerciseId: string) => void;
@@ -39,6 +43,31 @@ const WorkoutContext = createContext<WorkoutContextValue | undefined>(undefined)
 
 function createId(prefix: string) {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+function getLocalDayRange(date = new Date()) {
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(date);
+  end.setHours(23, 59, 59, 999);
+
+  return {
+    startIso: start.toISOString(),
+    endIso: end.toISOString(),
+  };
+}
+
+function toWeightValue(value: string) {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  const parsed = Number(trimmed);
+
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function toTemplateExercise(item: ExerciseLibraryRow): TemplateExercise {
@@ -56,12 +85,21 @@ function toTemplateExercise(item: ExerciseLibraryRow): TemplateExercise {
   };
 }
 
+function toDraftTemplate(template: WorkoutTemplate): WorkoutDraft {
+  return {
+    ...template,
+    exercises: template.exercises.map((exercise) => ({ ...exercise })),
+  };
+}
+
 export function WorkoutProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [templates, setTemplates] = useState<WorkoutTemplate[]>([]);
   const [draft, setDraft] = useState<WorkoutDraft | null>(null);
   const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
   const [completedExerciseIds, setCompletedExerciseIds] = useState<string[]>([]);
+  const [completedTodayPlanIds, setCompletedTodayPlanIds] = useState<string[]>([]);
+  const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -73,6 +111,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
           setTemplates([]);
           setActiveTemplateId(null);
           setCompletedExerciseIds([]);
+          setCompletedTodayPlanIds([]);
+          setEditingTemplateId(null);
           setLoading(false);
         }
 
@@ -80,6 +120,15 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       }
 
       setLoading(true);
+
+      const { startIso, endIso } = getLocalDayRange();
+
+      const { data: logRows, error: logError } = await supabase
+        .from("workout_logs")
+        .select("workout_plan_id")
+        .eq("user_id", user.id)
+        .gte("completed_at", startIso)
+        .lte("completed_at", endIso);
 
       const { data: planRows, error: planError } = await supabase
         .from("workout_plans")
@@ -91,13 +140,19 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (planError) {
+      if (planError || logError) {
         setTemplates([]);
         setActiveTemplateId(null);
         setCompletedExerciseIds([]);
+        setCompletedTodayPlanIds([]);
+        setEditingTemplateId(null);
         setLoading(false);
         return;
       }
+
+      const completedPlanIds = Array.from(
+        new Set((logRows ?? []).map((row) => String(row.workout_plan_id))),
+      );
 
       const planIds = (planRows ?? []).map((plan) => plan.id);
 
@@ -106,8 +161,9 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       if (planIds.length > 0) {
         const { data: exerciseRows, error: exerciseError } = await supabase
           .from("exercises")
-          .select("id, workout_plan_id, name, sets, reps")
+          .select("id, workout_plan_id, name, sets, reps, weight_kg, sort_order")
           .in("workout_plan_id", planIds)
+          .order("sort_order", { ascending: true, nullsFirst: true })
           .order("id", { ascending: true });
 
         if (!isMounted) {
@@ -129,7 +185,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
               imageUrl: null,
               sets: String(row.sets ?? ""),
               reps: String(row.reps ?? ""),
-              weight: "",
+              weight: row.weight_kg == null ? "" : String(row.weight_kg),
             });
 
             exercisesByPlan.set(planId, existing);
@@ -148,12 +204,14 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       }));
 
       setTemplates(nextTemplates);
+      setCompletedTodayPlanIds(completedPlanIds);
       setActiveTemplateId((current) =>
         current && nextTemplates.some((template) => template.id === current)
           ? current
-          : nextTemplates[0]?.id ?? null,
+          : nextTemplates.find((template) => !completedPlanIds.includes(template.id))?.id ?? null,
       );
       setCompletedExerciseIds([]);
+      setEditingTemplateId(null);
       setLoading(false);
     }
 
@@ -170,19 +228,35 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       draft,
       activeTemplateId,
       completedExerciseIds,
+      completedTodayPlanIds,
+      editingTemplateId,
       loading,
       startNewDraft: () => {
+        setEditingTemplateId(null);
         setDraft({
           id: createId("template"),
           title: "",
-          category: workoutContent.defaultCategory,
-          description: workoutContent.defaultCategory,
-          durationMinutes: workoutContent.defaultDuration,
+          category: "",
+          description: "",
+          durationMinutes: "",
           exercises: [],
           createdAt: new Date().toISOString(),
         });
       },
-      cancelDraft: () => setDraft(null),
+      startEditingTemplate: (templateId) => {
+        const template = templates.find((item) => item.id === templateId);
+
+        if (!template) {
+          return;
+        }
+
+        setEditingTemplateId(templateId);
+        setDraft(toDraftTemplate(template));
+      },
+      cancelDraft: () => {
+        setDraft(null);
+        setEditingTemplateId(null);
+      },
       updateDraftField: (field, value) => {
         setDraft((current) => {
           if (!current) {
@@ -253,14 +327,94 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
           return false;
         }
 
+        const baseTemplate = {
+          title,
+          category,
+          description: category,
+          duration_minutes: Number(durationMinutes),
+        };
+
+        const exerciseRows = draft.exercises.map((exercise, index) => ({
+          name: exercise.name,
+          sets: Number(exercise.sets) || 0,
+          reps: Number(exercise.reps) || 0,
+          weight_kg: toWeightValue(exercise.weight),
+          sort_order: index,
+        }));
+
+        if (editingTemplateId) {
+          const { error: planError } = await supabase
+            .from("workout_plans")
+            .update(baseTemplate)
+            .eq("id", editingTemplateId)
+            .eq("user_id", user.id);
+
+          if (planError) {
+            return false;
+          }
+
+          const { error: deleteError } = await supabase
+            .from("exercises")
+            .delete()
+            .eq("workout_plan_id", editingTemplateId);
+
+          if (deleteError) {
+            return false;
+          }
+
+          const { error: exercisesError } = await supabase.from("exercises").insert(
+            exerciseRows.map((exercise) => ({
+              workout_plan_id: editingTemplateId,
+              ...exercise,
+            })),
+          );
+
+          if (exercisesError) {
+            return false;
+          }
+
+          const { startIso, endIso } = getLocalDayRange();
+          const { error: logError } = await supabase
+            .from("workout_logs")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("workout_plan_id", editingTemplateId)
+            .gte("completed_at", startIso)
+            .lte("completed_at", endIso);
+
+          if (logError) {
+            return false;
+          }
+
+          const updatedTemplate: WorkoutTemplate = {
+            ...draft,
+            id: editingTemplateId,
+            title,
+            category,
+            description: category,
+            durationMinutes: String(durationMinutes),
+          };
+
+          setTemplates((current) =>
+            current.map((template) =>
+              template.id === editingTemplateId ? updatedTemplate : template,
+            ),
+          );
+          setActiveTemplateId(editingTemplateId);
+          setCompletedExerciseIds([]);
+          setCompletedTodayPlanIds((current) =>
+            current.filter((templateId) => templateId !== editingTemplateId),
+          );
+          setDraft(null);
+          setEditingTemplateId(null);
+          return true;
+        }
+
         const { data: createdPlan, error: planError } = await supabase
           .from("workout_plans")
           .insert({
             user_id: user.id,
-            title,
-            category,
-            description: category,
-            duration_minutes: Number(durationMinutes),
+            ...baseTemplate,
           })
           .select("id, title, category, description, duration_minutes, created_at")
           .single();
@@ -269,16 +423,12 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
           return false;
         }
 
-        const exerciseRows = draft.exercises.map((exercise) => ({
-          workout_plan_id: createdPlan.id,
-          name: exercise.name,
-          sets: Number(exercise.sets) || 0,
-          reps: Number(exercise.reps) || 0,
-        }));
-
-        const { error: exercisesError } = await supabase
-          .from("exercises")
-          .insert(exerciseRows);
+        const { error: exercisesError } = await supabase.from("exercises").insert(
+          exerciseRows.map((exercise) => ({
+            workout_plan_id: createdPlan.id,
+            ...exercise,
+          })),
+        );
 
         if (exercisesError) {
           return false;
@@ -298,6 +448,47 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         setActiveTemplateId(savedTemplate.id);
         setCompletedExerciseIds([]);
         setDraft(null);
+        setEditingTemplateId(null);
+        return true;
+      },
+      deleteDraft: async () => {
+        if (!editingTemplateId || !user || !hasSupabaseConfig) {
+          return false;
+        }
+
+        const templateId = editingTemplateId;
+
+        const { error: exercisesError } = await supabase
+          .from("exercises")
+          .delete()
+          .eq("workout_plan_id", templateId);
+
+        if (exercisesError) {
+          return false;
+        }
+
+        const { error: planError } = await supabase
+          .from("workout_plans")
+          .delete()
+          .eq("id", templateId)
+          .eq("user_id", user.id);
+
+        if (planError) {
+          return false;
+        }
+
+        setTemplates((current) => current.filter((template) => template.id !== templateId));
+        setCompletedTodayPlanIds((current) => current.filter((id) => id !== templateId));
+        setCompletedExerciseIds([]);
+        setActiveTemplateId((current) => {
+          if (current !== templateId) {
+            return current;
+          }
+
+          return templates.find((template) => template.id !== templateId)?.id ?? null;
+        });
+        setDraft(null);
+        setEditingTemplateId(null);
         return true;
       },
       startWorkout: (templateId) => {
@@ -316,6 +507,12 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
           return false;
         }
 
+        const currentTemplate = templates.find((template) => template.id === activeTemplateId);
+
+        if (!currentTemplate) {
+          return false;
+        }
+
         const { error } = await supabase.from("workout_logs").insert({
           user_id: user.id,
           workout_plan_id: activeTemplateId,
@@ -327,11 +524,31 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
           return false;
         }
 
+        const completedPlanIds = new Set([...completedTodayPlanIds, activeTemplateId]);
+        const nextTemplateId =
+          templates.find(
+            (template) =>
+              template.id !== activeTemplateId && !completedPlanIds.has(template.id),
+          )?.id ?? null;
+
+        setCompletedTodayPlanIds((current) =>
+          current.includes(activeTemplateId) ? current : [...current, activeTemplateId],
+        );
+        setActiveTemplateId(nextTemplateId);
         setCompletedExerciseIds([]);
         return true;
       },
     }),
-    [activeTemplateId, completedExerciseIds, draft, loading, templates, user],
+    [
+      activeTemplateId,
+      completedExerciseIds,
+      completedTodayPlanIds,
+      draft,
+      editingTemplateId,
+      loading,
+      templates,
+      user,
+    ],
   );
 
   return <WorkoutContext.Provider value={value}>{children}</WorkoutContext.Provider>;
