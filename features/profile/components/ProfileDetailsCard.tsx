@@ -43,12 +43,7 @@ function DetailField({
 }) {
   return (
     <View style={styles.detailRow}>
-      <View style={styles.detailLeft}>
-        <View style={styles.detailIcon}>
-          <Text style={styles.detailIconText}>•</Text>
-        </View>
-        <Text style={styles.detailLabel}>{label}</Text>
-      </View>
+      <Text style={styles.detailLabel}>{label}</Text>
 
       <TextInput
         value={value}
@@ -217,32 +212,14 @@ const styles = StyleSheet.create({
     minHeight: 58,
     flexDirection: "column",
     width: "100%",
-    gap: 12,
-  },
-  detailLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
-  },
-  detailIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: "#231D33",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  detailIconText: {
-    color: "#D8CCFF",
-    fontSize: 18,
-    fontWeight: "900",
+    gap: 10,
   },
   detailLabel: {
     color: "#D8DDE6",
     fontSize: 16,
     fontWeight: "700",
     flexShrink: 1,
+    textAlign: "left",
   },
   detailInput: {
     flex: 1,
@@ -250,7 +227,7 @@ const styles = StyleSheet.create({
     color: "#F8FAFC",
     fontSize: 15,
     fontWeight: "800",
-    textAlign: "right",
+    textAlign: "left",
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 14,
