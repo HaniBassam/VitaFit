@@ -141,12 +141,20 @@ export default function WorkoutScreen() {
                       {workoutContent.completedTodayHelper}
                     </Text>
 
-                    <View style={styles.completedPreview}>
-                      {activeTemplate.exercises.slice(0, 3).map((exercise) => (
-                        <Text key={exercise.id} style={styles.completedPreviewLine}>
-                          {exercise.name} • {exercise.sets} x {exercise.reps}
-                          {exercise.weight ? ` • ${exercise.weight} kg` : ""}
-                        </Text>
+                    <View style={styles.completedExerciseList}>
+                      {activeTemplate.exercises.map((exercise) => (
+                        <View key={exercise.id} style={styles.completedExerciseCard}>
+                          <Text style={styles.completedExerciseName}>{exercise.name}</Text>
+
+                          <View style={styles.completedExerciseSets}>
+                            {exercise.exerciseSets.map((set) => (
+                              <Text key={set.id} style={styles.completedExerciseSetLine}>
+                                Set {set.setNumber} · {set.reps || "--"} reps
+                                {set.weightKg ? ` · ${set.weightKg} kg` : ""}
+                              </Text>
+                            ))}
+                          </View>
+                        </View>
                       ))}
                     </View>
 
@@ -304,10 +312,27 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 19,
   },
-  completedPreview: {
-    gap: 6,
+  completedExerciseList: {
+    gap: 12,
   },
-  completedPreviewLine: {
+  completedExerciseCard: {
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    backgroundColor: "#121724",
+    borderWidth: 1,
+    borderColor: "#2A2440",
+  },
+  completedExerciseName: {
+    color: "#F8FAFC",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  completedExerciseSets: {
+    gap: 4,
+  },
+  completedExerciseSetLine: {
     color: "#C7D0DB",
     fontSize: 13,
   },
