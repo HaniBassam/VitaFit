@@ -8,7 +8,19 @@ import {
   type ReactNode,
 } from "react";
 
-import { hasSupabaseConfig, supabase } from "@/lib/supabase";
+import { clearSupabaseAuthStorage, hasSupabaseConfig, supabase } from "@/lib/supabase";
+
+function isRefreshTokenError(message?: string | null) {
+  if (!message) {
+    return false;
+  }
+
+  return (
+    message.includes("Invalid Refresh Token") ||
+    message.includes("Refresh Token Not Found") ||
+    message.includes("refresh_token_not_found")
+  );
+}
 
 type SignUpInput = {
   name: string;
@@ -42,6 +54,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (error) {
+          if (isRefreshTokenError(error.message)) {
+            void clearSupabaseAuthStorage();
+          }
           setSession(null);
           setLoading(false);
           return;
@@ -52,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       .catch(() => {
         if (isMounted) {
+          void clearSupabaseAuthStorage();
           setSession(null);
           setLoading(false);
         }
@@ -114,6 +130,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         const { error } = await supabase.auth.signOut();
+
+        if (error && isRefreshTokenError(error.message)) {
+          await clearSupabaseAuthStorage();
+          return null;
+        }
+
         return error?.message ?? null;
       },
     }),
