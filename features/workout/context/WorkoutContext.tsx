@@ -12,10 +12,14 @@ import { hasSupabaseConfig, supabase } from "@/lib/supabase";
 import type {
   ExerciseLibraryRow,
   TemplateExercise,
+  TemplateExerciseSet,
   WorkoutDraft,
   WorkoutTemplate,
 } from "@/features/workout/types";
 import { workoutContent } from "@/features/workout/data/workoutContent";
+
+const DEFAULT_TEMPLATE_CATEGORY = "General";
+const DEFAULT_TEMPLATE_DURATION_MINUTES = "45";
 
 type WorkoutContextValue = {
   templates: WorkoutTemplate[];
@@ -37,6 +41,13 @@ type WorkoutContextValue = {
   startWorkout: (templateId: string) => void;
   completeWorkout: () => Promise<boolean>;
   toggleWorkoutExercise: (exerciseId: string) => void;
+  addDraftExerciseSet: (exerciseId: string) => void;
+  updateDraftExerciseSet: (
+    exerciseId: string,
+    setId: string,
+    updates: Partial<TemplateExerciseSet>,
+  ) => void;
+  removeDraftExerciseSet: (exerciseId: string, setId: string) => void;
 };
 
 const WorkoutContext = createContext<WorkoutContextValue | undefined>(undefined);
@@ -70,6 +81,57 @@ function toWeightValue(value: string) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function toOptionalInt(value: string) {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  const parsed = Number(trimmed);
+
+  return Number.isFinite(parsed) ? Math.trunc(parsed) : null;
+}
+
+function createTemplateSet(setNumber: number): TemplateExerciseSet {
+  return {
+    id: createId("set"),
+    setNumber,
+    reps: "10",
+    weightKg: "",
+    restSeconds: "120",
+  };
+}
+
+function summarizeExercise(exercise: TemplateExercise) {
+  const firstSet = exercise.exerciseSets[0];
+
+  return {
+    ...exercise,
+    sets: String(exercise.exerciseSets.length),
+    reps: firstSet?.reps ?? "",
+    weight: firstSet?.weightKg ?? "",
+  };
+}
+
+function buildLegacyExerciseSets(row: {
+  id: string | number;
+  sets?: number | null;
+  reps?: number | null;
+  weight_kg?: number | null;
+}) {
+  const totalSets = Math.max(1, Number(row.sets ?? 1) || 1);
+  const reps = row.reps == null ? "" : String(row.reps);
+  const weightKg = row.weight_kg == null ? "" : String(row.weight_kg);
+
+  return Array.from({ length: totalSets }, (_, index) => ({
+    ...createTemplateSet(index + 1),
+    reps,
+    weightKg,
+    restSeconds: "",
+  }));
+}
+
 function toTemplateExercise(item: ExerciseLibraryRow): TemplateExercise {
   return {
     id: createId("exercise"),
@@ -79,16 +141,20 @@ function toTemplateExercise(item: ExerciseLibraryRow): TemplateExercise {
     muscleGroup: item.muscle_group ?? item.category ?? "General",
     equipment: item.equipment ?? "Bodyweight",
     imageUrl: item.image_url,
-    sets: "3",
+    sets: "1",
     reps: "10",
     weight: "",
+    exerciseSets: [createTemplateSet(1)],
   };
 }
 
 function toDraftTemplate(template: WorkoutTemplate): WorkoutDraft {
   return {
     ...template,
-    exercises: template.exercises.map((exercise) => ({ ...exercise })),
+    exercises: template.exercises.map((exercise) => ({
+      ...exercise,
+      exerciseSets: exercise.exerciseSets.map((set) => ({ ...set })),
+    })),
   };
 }
 
@@ -157,6 +223,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       const planIds = (planRows ?? []).map((plan) => plan.id);
 
       const exercisesByPlan = new Map<string, TemplateExercise[]>();
+      const exerciseSetsByExercise = new Map<string, TemplateExerciseSet[]>();
 
       if (planIds.length > 0) {
         const { data: exerciseRows, error: exerciseError } = await supabase
@@ -175,6 +242,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
             const planId = row.workout_plan_id as string;
             const existing = exercisesByPlan.get(planId) ?? [];
 
+            const legacySets = buildLegacyExerciseSets(row);
+
             existing.push({
               id: String(row.id),
               exerciseLibraryId: String(row.id),
@@ -186,20 +255,68 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
               sets: String(row.sets ?? ""),
               reps: String(row.reps ?? ""),
               weight: row.weight_kg == null ? "" : String(row.weight_kg),
+              exerciseSets: legacySets,
             });
 
             exercisesByPlan.set(planId, existing);
           });
+
+          const exerciseIds = (exerciseRows ?? []).map((row) => String(row.id));
+
+          if (exerciseIds.length > 0) {
+            const { data: setRows, error: setError } = await supabase
+              .from("exercise_sets")
+              .select("id, exercise_id, set_number, reps, weight_kg, rest_seconds, is_completed")
+              .in("exercise_id", exerciseIds)
+              .order("exercise_id", { ascending: true })
+              .order("set_number", { ascending: true })
+              .order("id", { ascending: true });
+
+            if (!isMounted) {
+              return;
+            }
+
+            if (!setError) {
+              (setRows ?? []).forEach((row) => {
+                const exerciseId = String(row.exercise_id);
+                const existing = exerciseSetsByExercise.get(exerciseId) ?? [];
+
+                existing.push({
+                  id: String(row.id),
+                  setNumber: Number(row.set_number) || existing.length + 1,
+                  reps: row.reps == null ? "" : String(row.reps),
+                  weightKg: row.weight_kg == null ? "" : String(row.weight_kg),
+                  restSeconds: row.rest_seconds == null ? "" : String(row.rest_seconds),
+                });
+
+                exerciseSetsByExercise.set(exerciseId, existing);
+              });
+            }
+          }
         }
       }
 
       const nextTemplates = (planRows ?? []).map((plan) => ({
         id: plan.id,
         title: plan.title,
-        category: plan.category ?? workoutContent.defaultCategory,
+        category: plan.category ?? DEFAULT_TEMPLATE_CATEGORY,
         description: plan.description ?? "",
-        durationMinutes: String(plan.duration_minutes ?? workoutContent.defaultDuration),
-        exercises: exercisesByPlan.get(plan.id) ?? [],
+        durationMinutes: String(plan.duration_minutes ?? DEFAULT_TEMPLATE_DURATION_MINUTES),
+        exercises: (exercisesByPlan.get(plan.id) ?? []).map((exercise) => {
+          const exerciseSets = exerciseSetsByExercise.get(exercise.id);
+
+          if (exerciseSets && exerciseSets.length > 0) {
+            return summarizeExercise({
+              ...exercise,
+              exerciseSets,
+            });
+          }
+
+          return summarizeExercise({
+            ...exercise,
+            exerciseSets: [createTemplateSet(1)],
+          });
+        }),
         createdAt: plan.created_at,
       }));
 
@@ -231,18 +348,18 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       completedTodayPlanIds,
       editingTemplateId,
       loading,
-      startNewDraft: () => {
-        setEditingTemplateId(null);
-        setDraft({
-          id: createId("template"),
-          title: "",
-          category: "",
-          description: "",
-          durationMinutes: "",
-          exercises: [],
-          createdAt: new Date().toISOString(),
-        });
-      },
+        startNewDraft: () => {
+          setEditingTemplateId(null);
+          setDraft({
+            id: createId("template"),
+            title: "",
+            category: DEFAULT_TEMPLATE_CATEGORY,
+            description: "",
+            durationMinutes: DEFAULT_TEMPLATE_DURATION_MINUTES,
+            exercises: [],
+            createdAt: new Date().toISOString(),
+          });
+        },
       startEditingTemplate: (templateId) => {
         const template = templates.find((item) => item.id === templateId);
 
@@ -288,6 +405,81 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
           };
         });
       },
+      addDraftExerciseSet: (exerciseId) => {
+        setDraft((current) => {
+          if (!current) {
+            return current;
+          }
+
+          return {
+            ...current,
+            exercises: current.exercises.map((exercise) => {
+              if (exercise.id !== exerciseId) {
+                return exercise;
+              }
+
+              return {
+                ...exercise,
+                exerciseSets: [
+                  ...exercise.exerciseSets,
+                  createTemplateSet(exercise.exerciseSets.length + 1),
+                ],
+              };
+            }),
+          };
+        });
+      },
+      updateDraftExerciseSet: (exerciseId, setId, updates) => {
+        setDraft((current) => {
+          if (!current) {
+            return current;
+          }
+
+          return {
+            ...current,
+            exercises: current.exercises.map((exercise) => {
+              if (exercise.id !== exerciseId) {
+                return exercise;
+              }
+
+              return {
+                ...exercise,
+                exerciseSets: exercise.exerciseSets.map((set) =>
+                  set.id === setId ? { ...set, ...updates } : set,
+                ),
+              };
+            }),
+          };
+        });
+      },
+      removeDraftExerciseSet: (exerciseId, setId) => {
+        setDraft((current) => {
+          if (!current) {
+            return current;
+          }
+
+          return {
+            ...current,
+            exercises: current.exercises.map((exercise) => {
+              if (exercise.id !== exerciseId) {
+                return exercise;
+              }
+
+              const nextSets = exercise.exerciseSets
+                .filter((set) => set.id !== setId)
+                .map((set, index) => ({
+                  ...set,
+                  setNumber: index + 1,
+                }));
+
+              return {
+                ...exercise,
+                exerciseSets: nextSets.length > 0 ? nextSets : [createTemplateSet(1)],
+              };
+            }),
+          };
+        });
+      },
       updateDraftExercise: (id, updates) => {
         setDraft((current) => {
           if (!current) {
@@ -320,8 +512,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         }
 
         const title = draft.title.trim();
-        const category = draft.category.trim() || workoutContent.defaultCategory;
-        const durationMinutes = draft.durationMinutes.trim() || workoutContent.defaultDuration;
+        const category = draft.category.trim() || DEFAULT_TEMPLATE_CATEGORY;
+        const durationMinutes = draft.durationMinutes.trim() || DEFAULT_TEMPLATE_DURATION_MINUTES;
 
         if (!hasSupabaseConfig) {
           return false;
@@ -334,15 +526,80 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
           duration_minutes: Number(durationMinutes),
         };
 
-        const exerciseRows = draft.exercises.map((exercise, index) => ({
-          name: exercise.name,
-          sets: Number(exercise.sets) || 0,
-          reps: Number(exercise.reps) || 0,
-          weight_kg: toWeightValue(exercise.weight),
-          sort_order: index,
-        }));
+        async function persistExerciseSets(
+          planId: string,
+          exercisesToPersist: TemplateExercise[],
+        ): Promise<{ ok: boolean; insertedExerciseIds: string[] }> {
+          const { data: createdExercises, error: exercisesError } = await supabase
+            .from("exercises")
+            .insert(
+              exercisesToPersist.map((exercise, index) => {
+                const firstSet = exercise.exerciseSets[0];
+
+                return {
+                  workout_plan_id: planId,
+                  name: exercise.name,
+                  sets: exercise.exerciseSets.length,
+                  reps: toOptionalInt(firstSet?.reps ?? exercise.reps) ?? 0,
+                  weight_kg: toWeightValue(firstSet?.weightKg ?? exercise.weight),
+                  sort_order: index,
+                };
+              }),
+            )
+            .select("id, sort_order");
+
+          if (exercisesError || !createdExercises) {
+            return { ok: false, insertedExerciseIds: [] };
+          }
+
+          const orderedExercises = [...createdExercises].sort(
+            (left, right) => Number(left.sort_order ?? 0) - Number(right.sort_order ?? 0),
+          );
+          const insertedExerciseIds = orderedExercises.map((exercise) => String(exercise.id));
+
+          const setPayload = exercisesToPersist.flatMap((exercise, exerciseIndex) => {
+            const insertedExercise = orderedExercises[exerciseIndex];
+
+            if (!insertedExercise) {
+              return [];
+            }
+
+            return exercise.exerciseSets.map((set) => ({
+              exercise_id: insertedExercise.id,
+              set_number: set.setNumber,
+              reps: toOptionalInt(set.reps),
+              weight_kg: toWeightValue(set.weightKg),
+              rest_seconds: toOptionalInt(set.restSeconds),
+              is_completed: false,
+            }));
+          });
+
+          if (setPayload.length === 0) {
+            return { ok: true, insertedExerciseIds };
+          }
+
+          const { error: setError } = await supabase.from("exercise_sets").insert(setPayload);
+
+          if (setError) {
+            await supabase.from("exercises").delete().in("id", insertedExerciseIds);
+            return { ok: false, insertedExerciseIds: [] };
+          }
+
+          return { ok: true, insertedExerciseIds };
+        }
 
         if (editingTemplateId) {
+          const { data: existingExerciseRows, error: existingExerciseError } = await supabase
+            .from("exercises")
+            .select("id")
+            .eq("workout_plan_id", editingTemplateId);
+
+          if (existingExerciseError) {
+            return false;
+          }
+
+          const existingExerciseIds = (existingExerciseRows ?? []).map((row) => String(row.id));
+
           const { error: planError } = await supabase
             .from("workout_plans")
             .update(baseTemplate)
@@ -353,23 +610,17 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
             return false;
           }
 
-          const { error: deleteError } = await supabase
-            .from("exercises")
-            .delete()
-            .eq("workout_plan_id", editingTemplateId);
+          const persisted = await persistExerciseSets(editingTemplateId, draft.exercises);
 
-          if (deleteError) {
+          if (!persisted.ok) {
             return false;
           }
 
-          const { error: exercisesError } = await supabase.from("exercises").insert(
-            exerciseRows.map((exercise) => ({
-              workout_plan_id: editingTemplateId,
-              ...exercise,
-            })),
-          );
+          const { error: deleteError } = existingExerciseIds.length
+            ? await supabase.from("exercises").delete().in("id", existingExerciseIds)
+            : { error: null };
 
-          if (exercisesError) {
+          if (deleteError) {
             return false;
           }
 
@@ -393,6 +644,12 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
             category,
             description: category,
             durationMinutes: String(durationMinutes),
+            exercises: draft.exercises.map((exercise) =>
+              summarizeExercise({
+                ...exercise,
+                exerciseSets: exercise.exerciseSets.map((set) => ({ ...set })),
+              }),
+            ),
           };
 
           setTemplates((current) =>
@@ -423,24 +680,25 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
           return false;
         }
 
-        const { error: exercisesError } = await supabase.from("exercises").insert(
-          exerciseRows.map((exercise) => ({
-            workout_plan_id: createdPlan.id,
-            ...exercise,
-          })),
-        );
+        const persisted = await persistExerciseSets(createdPlan.id, draft.exercises);
 
-        if (exercisesError) {
+        if (!persisted.ok) {
+          await supabase.from("workout_plans").delete().eq("id", createdPlan.id);
           return false;
         }
 
         const savedTemplate: WorkoutTemplate = {
           id: createdPlan.id,
           title: createdPlan.title,
-          category: createdPlan.category ?? workoutContent.defaultCategory,
+          category: createdPlan.category ?? DEFAULT_TEMPLATE_CATEGORY,
           description: createdPlan.description ?? "",
           durationMinutes: String(createdPlan.duration_minutes ?? durationMinutes),
-          exercises: draft.exercises,
+          exercises: draft.exercises.map((exercise) =>
+            summarizeExercise({
+              ...exercise,
+              exerciseSets: exercise.exerciseSets.map((set) => ({ ...set })),
+            }),
+          ),
           createdAt: createdPlan.created_at,
         };
 

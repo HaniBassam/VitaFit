@@ -35,6 +35,22 @@ const webStorage = {
 
 const storage = typeof window === "undefined" ? webStorage : AsyncStorage;
 
+export async function clearSupabaseAuthStorage() {
+  if (typeof window !== "undefined") {
+    Object.keys(window.localStorage)
+      .filter((key) => key.startsWith("sb-"))
+      .forEach((key) => window.localStorage.removeItem(key));
+    return;
+  }
+
+  const keys = await AsyncStorage.getAllKeys();
+  const authKeys = keys.filter((key) => key.startsWith("sb-"));
+
+  if (authKeys.length > 0) {
+    await AsyncStorage.multiRemove(authKeys);
+  }
+}
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage,
