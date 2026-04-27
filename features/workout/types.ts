@@ -19,6 +19,7 @@ export type TemplateExercise = {
   sets: string;
   reps: string;
   weight: string;
+  exerciseSets: TemplateExerciseSet[];
 };
 
 export type WorkoutTemplate = {
@@ -32,3 +33,11 @@ export type WorkoutTemplate = {
 };
 
 export type WorkoutDraft = WorkoutTemplate;
+
+export type TemplateExerciseSet = {
+  id: string;
+  setNumber: number;
+  reps: string;
+  weightKg: string;
+  restSeconds: string;
+};

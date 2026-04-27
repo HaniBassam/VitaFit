@@ -28,6 +28,16 @@ export function WorkoutSessionExerciseRow({
           {exercise.sets} sets · {exercise.reps} reps
           {exercise.weight ? ` · ${exercise.weight} kg` : ""}
         </Text>
+        {completed ? (
+          <View style={styles.setList}>
+            {exercise.exerciseSets.map((set) => (
+              <Text key={set.id} style={styles.setLine}>
+                Set {set.setNumber} · {set.reps || "--"} reps
+                {set.weightKg ? ` · ${set.weightKg} kg` : ""}
+              </Text>
+            ))}
+          </View>
+        ) : null}
       </View>
 
       <View style={styles.checkbox}>
@@ -74,6 +84,15 @@ const styles = StyleSheet.create({
     color: "#A7B1C2",
     fontSize: 12,
     fontWeight: "600",
+  },
+  setList: {
+    gap: 2,
+    marginTop: 2,
+  },
+  setLine: {
+    color: "#D8CCFF",
+    fontSize: 12,
+    fontWeight: "700",
   },
   checkbox: {
     width: 28,

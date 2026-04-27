@@ -22,8 +22,10 @@ export default function TemplateEditorScreen() {
     draft,
     editingTemplateId,
     updateDraftField,
-    updateDraftExercise,
     removeDraftExercise,
+    addDraftExerciseSet,
+    updateDraftExerciseSet,
+    removeDraftExerciseSet,
     deleteDraft,
     saveDraft,
     cancelDraft,
@@ -120,30 +122,6 @@ export default function TemplateEditorScreen() {
               placeholderTextColor="#6B7280"
               style={styles.nameInput}
             />
-
-            <View style={styles.metaRow}>
-              <View style={styles.metaPill}>
-                <Text style={styles.metaLabel}>{workoutContent.templateDurationLabel}</Text>
-                <TextInput
-                  value={draft.durationMinutes}
-                  onChangeText={(text) => updateDraftField("durationMinutes", text)}
-                  placeholder={workoutContent.templateDurationPlaceholder}
-                  placeholderTextColor="#6B7280"
-                  keyboardType="numeric"
-                  style={styles.metaInput}
-                />
-              </View>
-              <View style={styles.metaPill}>
-                <Text style={styles.metaLabel}>{workoutContent.templateCategoryLabel}</Text>
-                <TextInput
-                  value={draft.category}
-                  onChangeText={(text) => updateDraftField("category", text)}
-                  placeholder={workoutContent.templateCategoryPlaceholder}
-                  placeholderTextColor="#6B7280"
-                  style={styles.metaInput}
-                />
-              </View>
-            </View>
           </View>
 
           <View style={styles.sectionHeader}>
@@ -167,8 +145,10 @@ export default function TemplateEditorScreen() {
                 key={exercise.id}
                 exercise={exercise}
                 isEditing
-                onChangeExercise={updateDraftExercise}
                 onRemove={removeDraftExercise}
+                onAddSet={addDraftExerciseSet}
+                onUpdateSet={updateDraftExerciseSet}
+                onRemoveSet={removeDraftExerciseSet}
               />
             ))}
           </View>
@@ -282,31 +262,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "800",
     paddingVertical: 4,
-  },
-  metaRow: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  metaPill: {
-    flex: 1,
-    borderRadius: 16,
-    padding: 12,
-    backgroundColor: "#10161D",
-    borderWidth: 1,
-    borderColor: "#4D4566",
-    gap: 4,
-  },
-  metaLabel: {
-    color: "#8A94A6",
-    fontSize: 11,
-    fontWeight: "800",
-    textTransform: "uppercase",
-  },
-  metaInput: {
-    color: "#F8FAFC",
-    fontSize: 14,
-    fontWeight: "700",
-    paddingVertical: 0,
   },
   sectionHeader: {
     flexDirection: "row",
